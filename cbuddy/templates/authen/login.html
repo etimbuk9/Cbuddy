@@ -1,6 +1,21 @@
+<head>
+    {% load static %}
+    <script src="{% static 'bootstrap/js/bootstrap.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.css' %}">
 
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Login</button>
-</form>
+</head>
+<body>
+    <div class="container" style="padding: 150px; margin:20 0 0 450px; width: 800px;height: 600px;">
+        <div class="card">
+            <h5 class="card-header bg-primary">LogIn</h5>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </form>
+            </div>
+            
+        </div>
+    </div>
+</body>

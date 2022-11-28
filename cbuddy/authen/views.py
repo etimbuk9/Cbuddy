@@ -1,7 +1,8 @@
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import render, HttpResponse, redirect
+from django.shortcuts import reverse
 from .forms import *
 from .auth_functions import login as auth_login
-from global_vars import graph
+import global_vars
 
 # Create your views here.
 
@@ -11,13 +12,15 @@ def login(request):
         form = LoginForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
-            if graph:
+            if global_vars.graph:
                 is_correct = auth_login(data['username'], data['password'])
             if is_correct:
-                return HttpResponse('Hello World')
+                global_vars.loggedIn = is_correct
+                return HttpResponse('Hello World <a href="/logout">Log Out</a>')
     form = LoginForm()
     return render(request, 'authen/login.html', context={'form':form})
 
 
 def logout(request):
-    pass
+    global_vars.loggedIn = False
+    return redirect('authen:login')
