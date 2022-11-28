@@ -1,0 +1,41 @@
+{% extends 'base/sidebar.html' %}
+
+{% load static %}
+{% block content %}
+<div class="container">
+    <h3 class="display-6">Welcome to CBuddy, {{appuser}}</h3>
+    <br>
+    <div class="row">
+        <div class="col-3">
+            <div class="card text-end bg-dark">
+                <div class="card-body">
+                    <p class="display-1 text-light">{{visits}}</p>
+                    <p class="card-text text-light">Visits in the last week</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="card text-end bg-dark">
+                <div class="card-body">
+                    <p class="display-1 text-light">{{today_visits}}</p>
+                    <p class="card-text text-light">Visits in today</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="card">
+                <div class="card-body">
+                    This is card one.
+                </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="card">
+                <div class="card-body">
+                    This is card one.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
