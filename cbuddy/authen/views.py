@@ -24,3 +24,4 @@ def login(request):
 def logout(request):
     global_vars.loggedIn = False
     return redirect('authen:login')
+    # return render(request, 'base/sidebar.html')
