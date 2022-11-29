@@ -37,8 +37,8 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="#" class="nav-link px-sm-0 px-2">
-                            <i class="fs-5 bi-house"></i><span class="ms-1 d-none d-sm-inline">Edit Student Information</span>
+                        <a href="{% url 'studentinfo:landingpage' %}" class="nav-link px-sm-0 px-2">
+                            <i class="fs-5 bi-house"></i><span class="ms-1 d-none d-sm-inline">Search Student Information</span>
                         </a>
                     </li>
                     {% if role == 'DOCTOR' %}

@@ -8,12 +8,12 @@ from datetime import timedelta as td
 def home(request, name, role):
     if global_vars.get_and_set_login(request):
         return render(request, 'dashboard/home.html', context={
-            'appuser':name, 
-            'role':role, 
-            'visits':getVisitsintheLastWeek(7), 
-            'today_visits':getVisitsintheLastWeek(-1),
-            'students': getActiveStudents(),
-            'active_users': global_vars.users.shape[0],
+                'appuser':name, 
+                'role':role, 
+                'visits':getVisitsintheLastWeek(7), 
+                'today_visits':getVisitsintheLastWeek(-1),
+                'students': getActiveStudents(),
+                'active_users': global_vars.users.shape[0],
             })
     return redirect('authen:login')
 
