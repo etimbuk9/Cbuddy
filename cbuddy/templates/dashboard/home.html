@@ -7,7 +7,7 @@
     <br>
     <div class="row">
         <div class="col-3">
-            <div class="card text-end bg-dark">
+            <div class="card text-end bg-primary">
                 <div class="card-body">
                     <p class="display-1 text-light">{{visits}}</p>
                     <p class="card-text text-light">Visits in the last week</p>
@@ -15,24 +15,26 @@
             </div>
         </div>
         <div class="col-3">
-            <div class="card text-end bg-dark">
+            <div class="card text-end bg-danger">
                 <div class="card-body">
                     <p class="display-1 text-light">{{today_visits}}</p>
-                    <p class="card-text text-light">Visits in today</p>
+                    <p class="card-text text-light">Visits today</p>
                 </div>
             </div>
         </div>
         <div class="col-3">
-            <div class="card">
+            <div class="card text-end bg-warning">
                 <div class="card-body">
-                    This is card one.
+                    <p class="display-1 text-light">{{students}}</p>
+                    <p class="card-text text-light">Active Students</p>
                 </div>
             </div>
         </div>
         <div class="col-3">
-            <div class="card">
+            <div class="card text-end bg-success">
                 <div class="card-body">
-                    This is card one.
+                    <p class="display-1 text-light">{{active_users}}</p>
+                    <p class="card-text text-light">Active Users</p>
                 </div>
             </div>
         </div>
