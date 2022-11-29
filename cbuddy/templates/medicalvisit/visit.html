@@ -3,6 +3,44 @@
 
 {% block content %}
 
+<script>
+    $(document).ready(function(){
+        names = {{drugs|safe}};
+    var result = Object.keys(names);
+    var output = {};
+    for (var i=0; i<names.length; i++){
+        output[names[i]] = null;
+    }
+    console.log(output);
+    
+    var chip = {
+        tag: 'chip content',
+        image: '', //optional
+    };
+
+    $('.chips').chips();
+  $('.chips-initial').chips({
+    data: [{
+      tag: 'Apple',
+    }, {
+      tag: 'Microsoft',
+    }, {
+      tag: 'Google',
+    }],
+  });
+  $('.chips-placeholder').chips({
+    placeholder: 'Enter a tag',
+    secondaryPlaceholder: '+Tag',
+  });
+  $('.chips-autocomplete').chips({
+    autocompleteOptions: {
+      data: output,
+      limit: Infinity,
+      minLength: 1
+    }
+  });})
+</script>
+
 <div class="row"></div>
 <div class="card">
     <h4 class="card-header">Record New Visit</h4>
@@ -12,7 +50,40 @@
         <form>
             {% csrf_token %}
             {{ form.as_p }}
+            <div class="chips chips-autocomplete chips-placeholder">
+                <input class="pres">
+            </div>
+            <div class="center">
+                <div class="btn-group" role="group" aria-label="Basic example">
+                    <button type="button" class="btn btn-danger">Cancel</button>
+                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">Submit</button>
+                </div>
+  
+                <!-- Modal -->
+                <div class="modal fade" id="exampleModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h5 class="modal-title" id="staticBackdropLabel">Modal title</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                        ...
+                        </div>
+                        <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">Understood</button>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
         </form>
+        <datalist id="no_options">
+            {% for no in nos%}
+                <option value="{{no}}">
+            {% endfor %}
+          </datalist>
     </div>
 </div>
 

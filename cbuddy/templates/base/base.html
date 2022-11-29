@@ -1,11 +1,17 @@
 {% load static %}
 
 <head>
+    <!-- <link rel="stylesheet" href="{% static 'mdb5/css/mdb.dark.min.css' %}"> -->
+    <script src="{% static 'materialize/js/jquery-3.3.1.min.js'%}"></script>
     <script src="{% static 'bootstrap/js/bootstrap.js' %}"></script>
+    <!-- <script src="{% static 'mdb5/js/mdb.min.js' %}"></script> -->
+    <script src="{% static 'materialize/js/materialize.js' %}"></script>
+    
+    <link rel="stylesheet" href="{% static 'materialize/css/materialize.css' %}">
     <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.css' %}">
-    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap-utilitites.css' %}">
+    <!-- <link rel="stylesheet" href="{% static 'mdb5/css/mdb.min.css' %}"> -->
+    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.2/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="{% static 'mystyle.css' %}">
 
 </head>
 
@@ -28,6 +34,11 @@
                     <li class="nav-item">
                         <a href="{% url 'dashboard:home' appuser role %}" class="nav-link px-sm-0 px-2">
                             <i class="fs-5 bi-house"></i><span class="ms-1 d-none d-sm-inline">Home</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link px-sm-0 px-2">
+                            <i class="fs-5 bi-house"></i><span class="ms-1 d-none d-sm-inline">Edit Student Information</span>
                         </a>
                     </li>
                     {% if role == 'DOCTOR' %}
