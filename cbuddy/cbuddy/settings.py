@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'dashboard',
     'medicalvisit',
     'studentinfo',
+    'drugmanagement',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

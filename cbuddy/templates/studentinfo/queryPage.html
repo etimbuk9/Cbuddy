@@ -1,0 +1,80 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block content %}
+<script>
+    $(document).ready(function(){
+        $('.datepicker').datepicker({
+            format: 'yyyy-mm-dd',
+            // minDate: d,
+            // yearRange: 3,
+        });
+    });
+</script>
+    <div class="container">
+        <div class="card">
+            <p class="card-header">Search Student</p>
+            <div class="card-body">
+                <div class="accordion" id="accordionExample">
+                    <div class="accordion-item">
+                      <h2 class="accordion-header" id="headingOne">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                          Search Form
+                        </button>
+                      </h2>
+                      {% if not results %}
+                        <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                      {% else %}
+                      <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                      {% endif %}
+                        <div class="accordion-body">
+                            <form method="POST">
+                                {% csrf_token %}
+                                {{form.as_p}}
+                                <button type="submit" class="btn btn-primary">Search<i class="fs-5 bi-search"></i></button>
+                            </form>
+                            <br>
+                        </div>
+                      </div>
+                    </div>
+                    {% if results %}
+                        <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingTwo">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            Results
+                            </button>
+                        </h2>
+                        <div id="collapseTwo" class="accordion-collapse collapse show" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                            <div class="accordion-body">
+                                <p class="display-6">{{no}} results found</p>
+                                <table class="table table-striped">
+                                    <thead>
+                                        <th>S/No</th>
+                                        <th>Name</th>
+                                        <th>Student No</th>
+                                        <th>Gender</th>
+                                        <th>Set</th>
+                                        <th>No of Visits</th>
+                                    </thead>
+                                    <tbody>
+                                        {% for a,b,c,d,e in results %}
+                                            <tr>
+                                                <td>{{ forloop.counter }}</td>
+                                                <td>{{a}}</td>
+                                                <td>{{b}}</td>
+                                                <td>{{c}}</td>
+                                                <td>{{d}}</td>
+                                                <td>{{e}}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

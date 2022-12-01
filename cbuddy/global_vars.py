@@ -1,7 +1,8 @@
 from py2neo import Graph
 from authen import extras, auth_functions
 
-host_ip = '192.168.0.69'
+host_ip = '192.168.0.160'
+
 try:
     graph = Graph(f'http://{host_ip}:7474/db/data', password = 'medical')
 except:
@@ -42,3 +43,10 @@ def exportUserInfo(request):
         chk = False
     print(chk, user)
     return chk, chk
+
+def check_user_status_power(username):
+    dd = graph.run('MATCH (a:User) WHERE a.name = "' + username + '" RETURN a.poweruser')
+    d1 = dd.to_data_frame()
+    d1 = list(d1['a.poweruser'])
+    d1 = d1[0]
+    return d1

@@ -7,3 +7,5 @@ class VisitForm(Form):
     diagnosis = CharField(widget=Textarea(attrs={'class':'form-control'}))
     # admit = ChoiceField(choices=(('Yes', 'Yes'), ('No', 'No')), widget=Select(attrs={'class':'form-control'}))
 
+class StudentSearchForm(Form):
+    student = CharField(widget=TextInput(attrs={'class':'form-control','list':'no_options'}))

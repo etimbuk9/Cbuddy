@@ -21,5 +21,6 @@ urlpatterns = [
     path('dashboard/', include('dashboard.urls')),
     path('medicalvisit/', include('medicalvisit.urls')),
     path('studentinfo/', include('studentinfo.urls')),
+    path('drugmanagement/', include('drugmanagement.urls')),
     path('admin/', admin.site.urls),
 ]

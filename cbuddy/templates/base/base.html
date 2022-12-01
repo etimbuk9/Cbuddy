@@ -17,11 +17,11 @@
 
 <div class="container-fluid overflow-hidden">
     <div class="row vh-100 overflow-auto">
-        <div class="col-12 col-sm-3 col-xl-2 px-sm-2 px-0 bg-dark d-flex sticky-top">
+        <div class="col-12 col-sm-3 col-xl-2 px-sm-2 px-0 d-flex sticky-top">
             <div class="d-flex flex-sm-column flex-row flex-grow-1 align-items-center align-items-sm-start px-3 pt-2 text-white">
                 <br><br>
                 <div>
-                    <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                    <a href="#" class="d-flex align-items-center text-primary text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
                         <img src="https://github.com/mdo.png" alt="hugenerd" width="28" height="28" class="rounded-circle">
                         <span class="d-none d-sm-inline mx-1">{{appuser}}</span>
                     </a>
@@ -36,11 +36,6 @@
                             <i class="fs-5 bi-house"></i><span class="ms-1 d-none d-sm-inline">Home</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="{% url 'studentinfo:landingpage' %}" class="nav-link px-sm-0 px-2">
-                            <i class="fs-5 bi-house"></i><span class="ms-1 d-none d-sm-inline">Search Student Information</span>
-                        </a>
-                    </li>
                     {% if role == 'DOCTOR' %}
                         <li class="nav-item">
                             <a href="{% url 'medicalvisit:visit' %}" class="nav-link align-middle px-0">
@@ -53,6 +48,31 @@
                             </a>
                         </li>
                     {% endif %}
+                    <li class="nav-item">
+                        <a href="{% url 'studentinfo:landingpage' %}" class="nav-link px-sm-0 px-2">
+                            <i class="fs-5 bi-search"></i><span class="ms-1 d-none d-sm-inline">Search Student Medical History</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'studentinfo:query' %}" class="nav-link align-middle px-0">
+                            <i class="fs-5 bi-search"></i> <span class="ms-1 d-none d-sm-inline">Student Search</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'medicalvisit:check-pres' %}" class="nav-link align-middle px-0">
+                            <i class="fs-5 bi-file-medical"></i> <span class="ms-1 d-none d-sm-inline">Check Student Prescription</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'studentinfo:add-new-allergy' %}" class="nav-link align-middle px-0">
+                            <i class="fs-5 bi-file-medical"></i> <span class="ms-1 d-none d-sm-inline">Add New Allergy+</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'drugmanagement:add-new-drug' %}" class="nav-link align-middle px-0">
+                            <i class="fs-5 bi-file-medical"></i> <span class="ms-1 d-none d-sm-inline">Add New Drug+</span>
+                        </a>
+                    </li>
                     <li class="nav-item">
                         <a href="{% url 'authen:logout' %}" class="nav-link align-middle px-0">
                             <i class="fs-5 bi-box-arrow-in-left"></i> <span class="ms-1 d-none d-sm-inline">Sign Out</span>

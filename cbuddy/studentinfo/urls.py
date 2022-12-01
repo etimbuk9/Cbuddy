@@ -21,4 +21,6 @@ app_name = 'studentinfo'
 
 urlpatterns = [
     path('', landingpage, name='landingpage'),
+    path('query/', queryPage, name='query'),
+    path('add-new-allergy/', addNewAllergy, name='add-new-allergy'),
 ]

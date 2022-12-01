@@ -1,0 +1,43 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="container">
+        <div class="card">
+            <p class="card-header">Check Prescription</p>
+            <div class="card-body">
+                <form>
+                    {% csrf_token %}
+                    {{form.as_p}}
+                    <button type="submit" class="btn btn-primary">Search<i class="fs-5 bi-search"></i></button>
+                </form>
+                <datalist id="no_options">
+                    {% for no in nos%}
+                        <option value="{{no}}">
+                    {% endfor %}
+                </datalist>
+                <br>
+                {% if cycles %}
+                    <table class="table table-striped">
+                        <thead>
+                            <th>Medication Cycle</th>
+                            <th>Prescription</th>
+                            <th>Actions</th>
+                        </thead>
+                        <tbody>
+                            {% for cycle, Pres in cycles %}
+                                <tr>
+                                    <td>{{cycle}}</td>
+                                    <td>{{Pres}}</td>
+                                    <td>
+                                        <a href="#" class="btn btn-success">Dispense</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

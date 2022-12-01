@@ -17,9 +17,9 @@ from django.contrib import admin
 from django.urls import path, include
 from .views import *
 
-app_name = 'medicalvisit'
+app_name = 'drugmanagement'
 
 urlpatterns = [
-    path('', visit, name='visit'),
-    path('check-pres', checkStudentPrescription, name='check-pres'),
+    path('add-new-drug', addNewDrug, name='add-new-drug'),
+    # path('check-pres', checkStudentPrescription, name='check-pres'),
 ]
