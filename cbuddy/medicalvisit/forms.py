@@ -1,7 +1,7 @@
 from django.forms import *
 
 class VisitForm(Form):
-    student = CharField(widget=TextInput(attrs={'class':'form-control','list':'no_options'}))
+    # student = CharField(widget=TextInput(attrs={'class':'form-control','list':'no_options'}))
     # name = CharField(widget=TextInput(attrs={'class':'form-control'}))
     complaint = CharField(widget=Textarea(attrs={'class':'form-control'}))
     diagnosis = CharField(widget=Textarea(attrs={'class':'form-control'}))

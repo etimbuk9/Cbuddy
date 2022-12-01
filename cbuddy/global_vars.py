@@ -1,5 +1,6 @@
 from py2neo import Graph
 from authen import extras, auth_functions
+from medicalvisit.views import getStudNos
 
 host_ip = '192.168.0.160'
 
@@ -13,12 +14,13 @@ loggedIn = False
 user = 'etimbukabraham'
 users = extras.getUserList()
 role = 'DOCTOR'
+students = getStudNos()
 
 def get_and_set_login(request):
     chk = False
     user = ""
     ip = request.META['REMOTE_ADDR']
-    print(users)
+    # print(users)
     try:
         chk = users['logs'][users['ips']==ip]
         user = users['name'][users['ips'] == ip].iloc[0]
@@ -26,7 +28,7 @@ def get_and_set_login(request):
     except Exception as err:
         print(err)
         chk = False
-    print(chk, user)
+    # print(chk, user)
     return chk
 
 def exportUserInfo(request):
@@ -41,7 +43,7 @@ def exportUserInfo(request):
     except Exception as err:
         print(err)
         chk = False
-    print(chk, user)
+    # print(chk, user)
     return chk, chk
 
 def check_user_status_power(username):

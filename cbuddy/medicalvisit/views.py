@@ -3,20 +3,34 @@ from .forms import *
 import global_vars
 from datetime import datetime as dt
 import numpy as np
+from .models import Student
+from authen import extras
 
 # Create your views here.
 
 def visit(request):
     if global_vars.get_and_set_login(request):
-        stud_no_list = getStudNos()
-        form = VisitForm()
-        return render(request, 'medicalvisit/visit.html', context={
-            'appuser': global_vars.exportUserInfo(request)[0],
-            'role': global_vars.exportUserInfo(request)[1],
-            'form':form,
-            'nos':stud_no_list,
-            'drugs': getDrugs(),
-        })
+        if request.method == 'GET':
+            form = StudentSearchForm(request.GET)
+            if form.is_valid():
+                data = form.cleaned_data
+                student_name = str(data['student']).split(' -> ')[0]
+                regno = str(data['student']).split(' -> ')[1].split('(')[0].strip()
+                student_set = str(data['student']).split(' -> ')[1].split('(')[-1][:-1]
+
+                student_model = Student(student_name,regno,student_set)
+                form = VisitForm()
+                attributes = extras.getAttributes(regno)
+                return render(request, 'medicalvisit/visit.html', context={
+                    'appuser': global_vars.exportUserInfo(request)[0],
+                    'role': global_vars.exportUserInfo(request)[1],
+                    'form':form,
+                    'drugs': getDrugs(),
+                    'student':student_model,
+                    'atts': attributes,
+                })
+            else:
+                print(form.errors)
     return redirect('authen:login')
 
 

@@ -29,7 +29,7 @@
     }],
   });
   $('.chips-placeholder').chips({
-    placeholder: 'Enter a tag',
+    placeholder: 'Enter Drug',
     secondaryPlaceholder: '+Tag',
   });
   $('.chips-autocomplete').chips({
@@ -45,45 +45,75 @@
 <div class="card">
     <h4 class="card-header">Record New Visit</h4>
     <div class="row container-fluid">
-        <br>
-        <br>
-        <form>
-            {% csrf_token %}
-            {{ form.as_p }}
-            <div class="chips chips-autocomplete chips-placeholder">
-                <input class="pres">
-            </div>
-            <div class="center">
-                <div class="btn-group" role="group" aria-label="Basic example">
-                    <button type="button" class="btn btn-danger">Cancel</button>
-                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">Submit</button>
+        <div class="card-body">
+            <br>
+            <table class="table table-striped">
+                <tbody>
+                    <tr>
+                        <td>Name:</td>
+                        <td>{{student.name}}</td>
+                    </tr>
+                    <tr>
+                        <td>Student Number: </td>
+                        <td>{{student.regno}}</td>
+                    </tr>
+                    <tr>
+                        <td>Set: </td>
+                        <td>{{student.student_set}}</td>
+                    </tr>
+                    {% if atts %}
+                        <tr>
+                            <td>Allegries</td>
+                            <td>
+                            {% for att in atts%}
+                                <div class="chip">
+                                    {{att}}
+                                </div>
+                            {% endfor %}
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+            <br>
+            <form>
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div class="chips chips-autocomplete chips-placeholder">
+                    <input class="pres">
                 </div>
-  
-                <!-- Modal -->
-                <div class="modal fade" id="exampleModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                        <h5 class="modal-title" id="staticBackdropLabel">Modal title</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="center">
+                    <div class="btn-group" role="group" aria-label="Basic example">
+                        <button type="button" class="btn btn-danger">Cancel</button>
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">Submit</button>
+                    </div>
+    
+                    <!-- Modal -->
+                    <div class="modal fade" id="exampleModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                            <h5 class="modal-title" id="staticBackdropLabel">Modal title</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                            ...
+                            </div>
+                            <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary">Understood</button>
+                            </div>
                         </div>
-                        <div class="modal-body">
-                        ...
-                        </div>
-                        <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Understood</button>
                         </div>
                     </div>
-                    </div>
                 </div>
-            </div>
-        </form>
-        <datalist id="no_options">
-            {% for no in nos%}
-                <option value="{{no}}">
-            {% endfor %}
-          </datalist>
+            </form>
+            <datalist id="no_options">
+                {% for no in nos%}
+                    <option value="{{no}}">
+                {% endfor %}
+            </datalist>
+        </div>
     </div>
 </div>
 
