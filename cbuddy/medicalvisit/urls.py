@@ -22,4 +22,6 @@ app_name = 'medicalvisit'
 urlpatterns = [
     path('', visit, name='visit'),
     path('check-pres', checkStudentPrescription, name='check-pres'),
+    path('labvisit', newLabVisit, name='labvisit'),
+    path('submit-labvisit/<medname>', submitLabResult, name='submit-labvisit'),
 ]

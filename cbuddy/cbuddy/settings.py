@@ -69,6 +69,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'studentinfo.context_processors.get_students_processor',
+                'authen.context_processors.check_user_status_power',
             ],
         },
     },

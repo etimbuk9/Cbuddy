@@ -2,7 +2,8 @@ from py2neo import Graph
 from authen import extras, auth_functions
 from medicalvisit.views import getStudNos
 
-host_ip = '192.168.0.160'
+host_ip = '192.168.0.69'
+# host_ip = '192.168.8.175'
 
 try:
     graph = Graph(f'http://{host_ip}:7474/db/data', password = 'medical')
@@ -34,7 +35,7 @@ def get_and_set_login(request):
 def exportUserInfo(request):
     user = ""
     ip = request.META['REMOTE_ADDR']
-    print(users)
+    # print(users)
     try:
         chk = users['logs'][users['ips']==ip]
         user = users['name'][users['ips'] == ip].iloc[0]
@@ -46,9 +47,22 @@ def exportUserInfo(request):
     # print(chk, user)
     return chk, chk
 
-def check_user_status_power(username):
-    dd = graph.run('MATCH (a:User) WHERE a.name = "' + username + '" RETURN a.poweruser')
-    d1 = dd.to_data_frame()
-    d1 = list(d1['a.poweruser'])
-    d1 = d1[0]
-    return d1
+
+def getPreviousVisits(studentno):
+    d2 = []
+    query = 'MATCH(n:Person{id:' + studentno + '})-[:VISITED]->(m) ' + 'RETURN m.Complain,m.Diagnosis,m.Prescription,m.date,m.time, m.name order by m.name desc'
+    d1 = graph.run(query).to_data_frame()
+    if d1.shape[0] != 0:
+        d1 = d1[['m.Complain', 'm.Diagnosis', 'm.Prescription', 'm.date', 'm.time', 'm.name']]
+        d2 = [list(d1.iloc[x,:]) for x in range(d1.shape[0])]
+    return d2
+
+def getLabVisits(studentno):
+    d2 = []
+    query = 'MATCH(n:Person{id:' + studentno + '})-[*2]-(m:LabVisit) ' + 'RETURN m.Results,m.doctor,m.date,m.time, m.name'
+    d = graph.run(query)
+    d1 = d.to_data_frame()
+    if d1.shape[0] != 0:
+        d1 = d1[['m.date', 'm.Results', 'm.doctor', 'm.time', 'm.name']]
+        d2 = [list(d1.iloc[x,:]) for x in range(d1.shape[0])]
+    return d2

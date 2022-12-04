@@ -1,0 +1,43 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block content %}
+<script>
+    function showName(name,info){
+        // console.log(name, info);
+        var toastHtml = "<div class='bg-dark'><span>"+name.toString()+" - "+info.toString()+"</span><a class='btn btn-warning toast-action' href='{% url 'medicalvisit:check-pres' %}'>Go ></a></div>"
+        M.toast({html: toastHtml, classes:"rounded bg-dark"});
+    }
+</script>
+
+
+
+    <div class="container">
+        <div class="card">
+            <h5 class="card-header">Students on Medication</h5>
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <th>Name</th>
+                        <th>Reg Number</th>
+                        <th>Gender</th>
+                        <th>Dispense</th>
+                    </thead>
+                    <tbody>
+                        {% for name, regno, gender in studs%}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{name}}</td>
+                                <td>{{regno}}</td>
+                                <td>{{gender}}</td>
+                                <td>
+                                    <a href="{% url 'studentinfo:move-to-dispense' regno %}" class="btn" id="liveToastBtn">Dispense</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>                
+{% endblock %}

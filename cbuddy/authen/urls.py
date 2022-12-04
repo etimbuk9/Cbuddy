@@ -22,4 +22,5 @@ app_name = 'authen'
 urlpatterns = [
     path('', login, name='login'),
     path('logout/', logout, name='logout'),
+    path('create-user/', createNewUser, name='create-user'),
 ]

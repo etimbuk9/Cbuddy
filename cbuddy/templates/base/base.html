@@ -16,11 +16,11 @@
 
 <div class="container-fluid overflow-hidden">
     <div class="row vh-100 overflow-auto">
-        <div class="col-12 col-sm-3 col-xl-2 px-sm-2 px-0 d-flex sticky-top">
+        <div class="col-12 col-sm-3 col-xl-2 px-sm-2 px-0 d-flex sticky-top bg-primary">
             <div class="d-flex flex-sm-column flex-row flex-grow-1 align-items-center align-items-sm-start px-3 pt-2 text-white">
                 <br><br>
                 <div>
-                    <a href="#" class="d-flex align-items-center text-primary text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                    <a href="#" class="d-flex align-items-center text-primary text-decoration-none dropdown-toggle text-white" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
                         <img src="https://github.com/mdo.png" alt="hugenerd" width="28" height="28" class="rounded-circle">
                         <span class="d-none d-sm-inline mx-1">{{appuser}}</span>
                     </a>
@@ -31,56 +31,68 @@
                 </a> -->
                 <ul class="nav nav-pills flex-sm-column flex-row flex-nowrap flex-shrink-1 flex-sm-grow-0 flex-grow-1 mb-sm-auto mb-0 justify-content-center align-items-center align-items-sm-start" id="menu">
                     <li class="nav-item">
-                        <a href="{% url 'dashboard:home' appuser role %}" class="nav-link px-sm-0 px-2">
+                        <a href="{% url 'dashboard:home' appuser role %}" class="nav-link px-sm-0 px-2 text-white">
                             <i class="fs-5 bi-house"></i><span class="ms-1 d-none d-sm-inline">Home</span>
                         </a>
                     </li>
                     {% if role == 'DOCTOR' %}
                         <li class="nav-item">
-                            <a href="#" class="nav-link align-middle px-0" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                            <a href="#" class="nav-link align-middle px-0 text-white" data-bs-toggle="modal" data-bs-target="#exampleModalbase">
                                 <i class="fs-5 bi-file-medical"></i> <span class="ms-1 d-none d-sm-inline">New Visit</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link align-middle px-0">
+                            <a href="#" class="nav-link align-middle px-0 text-white" data-bs-toggle="modal" data-bs-target="#exampleModalLab">
                                 <i class="fs-5 bi-file-medical"></i> <span class="ms-1 d-none d-sm-inline">New Lab Visit</span>
                             </a>
                         </li>
                     {% endif %}
                     <li class="nav-item">
-                        <a href="{% url 'studentinfo:landingpage' %}" class="nav-link px-sm-0 px-2">
+                        <a href="{% url 'studentinfo:landingpage' %}" class="nav-link px-sm-0 px-2 text-white">
                             <i class="fs-5 bi-search"></i><span class="ms-1 d-none d-sm-inline">Search Student Medical History</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="{% url 'studentinfo:query' %}" class="nav-link align-middle px-0">
+                        <a href="{% url 'studentinfo:query' %}" class="nav-link align-middle px-0 text-white">
                             <i class="fs-5 bi-search"></i> <span class="ms-1 d-none d-sm-inline">Student Search</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="{% url 'medicalvisit:check-pres' %}" class="nav-link align-middle px-0">
-                            <i class="fs-5 bi-file-medical"></i> <span class="ms-1 d-none d-sm-inline">Check Student Prescription</span>
+                        <a href="{% url 'studentinfo:students-on-meds' %}" class="nav-link align-middle px-0 text-white">
+                            <i class="fs-5 bi-file-medical"></i> <span class="ms-1 d-none d-sm-inline">Student on Medication</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="{% url 'studentinfo:add-new-allergy' %}" class="nav-link align-middle px-0">
+                        <a href="{% url 'medicalvisit:check-pres' %}" class="nav-link align-middle px-0 text-white">
+                            <i class="fs-5 bi-file-medical"></i> <span class="ms-1 d-none d-sm-inline">Check Student Prescription</span>
+                        </a>
+                    </li>
+                    {% if power_user %}
+                    <li class="nav-item">
+                        <a href="{% url 'studentinfo:add-new-allergy' %}" class="nav-link align-middle px-0 text-white">
                             <i class="fs-5 bi-file-medical"></i> <span class="ms-1 d-none d-sm-inline">Add New Allergy+</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="{% url 'drugmanagement:add-new-drug' %}" class="nav-link align-middle px-0">
+                        <a href="{% url 'authen:create-user' %}" class="nav-link align-middle px-0 text-white">
+                            <i class="fs-5 bi-file-medical"></i> <span class="ms-1 d-none d-sm-inline">Create New User</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a href="{% url 'drugmanagement:add-new-drug' %}" class="nav-link align-middle px-0 text-white">
                             <i class="fs-5 bi-file-medical"></i> <span class="ms-1 d-none d-sm-inline">Add New Drug+</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="{% url 'authen:logout' %}" class="nav-link align-middle px-0">
+                        <a href="{% url 'authen:logout' %}" class="nav-link align-middle px-0 text-white">
                             <i class="fs-5 bi-box-arrow-in-left"></i> <span class="ms-1 d-none d-sm-inline">Sign Out</span>
                         </a>
                     </li>
                 </ul>
             </div>
         </div>
-        <div class="modal fade" id="exampleModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal fade" id="exampleModalbase" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -97,6 +109,34 @@
                         <div class="modal-footer justify-content-center">
                             <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
                             <button type="submit" class="btn btn-primary">Go to New Visit</button>
+                        </div>
+                    </form>
+                    <datalist id="no_options">
+                        {% for no in student_info %}
+                            <option value="{{no}}">
+                        {% endfor %}
+                    </datalist>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="exampleModalLab" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Record New Lab Visit</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form method="get" action="{% url 'medicalvisit:labvisit' %}">
+                        <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="exampleFormControlInput1" class="form-label">Select Student</label>
+                                    <input type="text" class="form-control" id="exampleFormControlInput1" placeholder="Type Student Number or Name" list="no_options" name="student">
+                                </div>
+                        </div>
+                        <div class="modal-footer justify-content-center">
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Submit</button>
                         </div>
                     </form>
                     <datalist id="no_options">

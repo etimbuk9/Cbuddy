@@ -8,6 +8,7 @@ def getUserList():
         data = global_vars.graph.run(query).to_data_frame()
         data['ips'] = ['0.0.0.0']*data.shape[0]
         data['logs'] = [False]*data.shape[0]
+        data['inits'] = [{}]*data.shape[0]
         return data
     return []
 

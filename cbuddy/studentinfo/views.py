@@ -5,8 +5,9 @@ from .forms import *
 
 # Create your views here.
 def landingpage(request):
-    students = getStudNos()
     if global_vars.get_and_set_login(request):
+        students = getStudNos()
+        form = StudentSearchForm()
         if request.method == 'GET':
             form = StudentSearchForm(request.GET)
             if form.is_valid():
@@ -25,7 +26,6 @@ def landingpage(request):
                     'labs': getLabVisits(student_no),
                 })
 
-        form = StudentSearchForm()
         return render(request, 'studentinfo/landingpage.html', context={
             'appuser': global_vars.exportUserInfo(request)[0],
             'role': global_vars.exportUserInfo(request)[1],
@@ -74,8 +74,39 @@ def addNewAllergy(request):
             'nos': getStudNos(),
         })
 
+def students_on_meds(request):
+    student_models = getStudentsOnMedication()
+    return render(request, 'studentinfo/studs-on-meds.html', context={
+            'appuser': global_vars.exportUserInfo(request)[0],
+            'role': global_vars.exportUserInfo(request)[1],
+            'studs':student_models,
+        })
+
+def moveToDispense(request, regno):
+    stud = getStudbyRegno(regno)
+    print(type(stud))
+    idx = list(global_vars.users['name'] == global_vars.exportUserInfo(request)[0]).index(True)
+    global_vars.users['inits'].iat[idx] = {'student':str(stud)}
+    print(global_vars.users)
+    return redirect('medicalvisit:check-pres')
 
 ## Utility Functions
+def getStudentsOnMedication():
+    d1 = []
+    query = 'MATCH(a:Person)-[*]->(m:Medication) where m.ongoing=1 return a.name, a.id, a.gender'
+    d = global_vars.graph.run(query).to_data_frame()
+    if d.shape[0] != 0:
+        d1 = [list(d.iloc[x,:]) for x in range(d.shape[0])]
+    return d1
+
+def getStudbyRegno(regno):
+    if global_vars.graph:
+        query = "match(n:Person{id:"+str(regno)+"})--(s:Set) return n.name+' -> '+n.id + ' ('+s.name+')' as info order by n.id"
+        data = global_vars.graph.run(query).to_data_frame()
+        studs = data['info'].iloc[0]
+        return studs
+    return []
+
 def addAttribute(studentno, attribute):
     attribs = str(attribute).split(',')
     attribs = [str(x).strip() for x in attribs]

@@ -21,6 +21,13 @@ def addNewDrug(request):
         })
 
 
+def restockDrugs(request):
+    return render(request, 'drugmanagement/newdrug.html', context={
+            'appuser': global_vars.exportUserInfo(request)[0],
+            'role': global_vars.exportUserInfo(request)[1],
+            # 'form':form,
+        })
+
 
 ## Utility Functions
 def add_new_drug(name, category, p_unit, s_unit, amp, qty, disp):

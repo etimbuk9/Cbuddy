@@ -4,6 +4,14 @@
 {% block content %}
 
 <script>
+    var all_chips = [];
+
+    function addChip(){
+        var instance = M.Chips.getInstance(elem);
+        all_chips.push(instance.chipsData);
+        console.log(all_chips);
+    }
+
     $(document).ready(function(){
         names = {{drugs|safe}};
     var result = Object.keys(names);
@@ -19,15 +27,6 @@
     };
 
     $('.chips').chips();
-  $('.chips-initial').chips({
-    data: [{
-      tag: 'Apple',
-    }, {
-      tag: 'Microsoft',
-    }, {
-      tag: 'Google',
-    }],
-  });
   $('.chips-placeholder').chips({
     placeholder: 'Enter Drug',
     secondaryPlaceholder: '+Tag',
@@ -37,9 +36,12 @@
       data: output,
       limit: Infinity,
       minLength: 1
-    }
+    },
+    // onChipAdd: addChip(chip['tag']),
   });})
 </script>
+
+
 
 <div class="row"></div>
 <div class="card">
@@ -75,6 +77,9 @@
                     {% endif %}
                 </tbody>
             </table>
+            <div class="row">
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModalPrevVisit">See Previous Visits</button>
+            </div>
             <br>
             <form>
                 {% csrf_token %}
@@ -84,26 +89,66 @@
                 </div>
                 <div class="center">
                     <div class="btn-group" role="group" aria-label="Basic example">
-                        <button type="button" class="btn btn-danger">Cancel</button>
-                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">Submit</button>
+                        <a href="/" class="btn btn-danger">Cancel</a>
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModalPres">Submit</button>
                     </div>
     
                     <!-- Modal -->
-                    <div class="modal fade" id="exampleModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                        <div class="modal-dialog">
+                    <div class="modal fade" id="exampleModalPrevVisit" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-scrollable modal-lg">
                         <div class="modal-content">
                             <div class="modal-header">
-                            <h5 class="modal-title" id="staticBackdropLabel">Modal title</h5>
+                            <h5 class="modal-title" id="staticBackdropLabel">Previous Visits</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                            ...
+                                {% if prev_visits%}
+                                <table class="table table-striped">
+                                    <thead>
+                                        <th>Complain</th>
+                                        <th>Diagnosis</th>
+                                        <th>Prescription</th>
+                                        <th>Date</th>
+                                        <th>Time</th>
+                                        <!-- <th>Visit ID</th> -->
+                                    </thead>
+                                    <tbody>
+                                        {% for comp,diag,pres,date,time,id in prev_visits%}
+                                            <tr>
+                                                <td>{{comp}}</td>
+                                                <td>{{diag}}</td>
+                                                <td>{{pres}}</td>
+                                                <td>{{date}}</td>
+                                                <td>{{time}}</td>
+                                                <!-- <td>{{id}}</td> -->
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                {% endif %}
                             </div>
                             <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary">Understood</button>
+                            <!-- <button type="button" class="btn btn-primary">Understood</button> -->
                             </div>
                         </div>
+                    </div>
+                </div>
+                <!-- Modal -->
+                <div class="modal fade" id="exampleModalPres" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                            <h5 class="modal-title" id="staticBackdropLabel">See Previous Visits</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                ...
+                            </div>
+                            <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <!-- <button type="button" class="btn btn-primary">Understood</button> -->
+                            </div>
                         </div>
                     </div>
                 </div>

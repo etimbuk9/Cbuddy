@@ -6,7 +6,7 @@
         <div class="card">
             <p class="card-header">Check Prescription</p>
             <div class="card-body">
-                <form>
+                <form method="post">
                     {% csrf_token %}
                     {{form.as_p}}
                     <button type="submit" class="btn btn-primary">Search<i class="fs-5 bi-search"></i></button>

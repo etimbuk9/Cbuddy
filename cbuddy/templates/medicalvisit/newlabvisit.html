@@ -1,0 +1,101 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="container">
+        <p class="display-6">Record Laboratory Visits</p>
+        <br>
+        <table class="table table-striped">
+            <tbody>
+                <tr>
+                    <td>Name:</td>
+                    <td>{{student.name}}</td>
+                </tr>
+                <tr>
+                    <td>Student Number: </td>
+                    <td>{{student.regno}}</td>
+                </tr>
+                <tr>
+                    <td>Set: </td>
+                    <td>{{student.student_set}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <br>
+        <div class="row">
+            <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModalPrevLabVisit"> Previous Lab Visit Results </a>
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModalPrevLabVisit" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-scrollable modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h5 class="modal-title" id="staticBackdropLabel">See Previous Visits</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            {% if prev_visits%}
+                                <table class="table table-striped">
+                                    <thead>
+                                        <th>Date</th>
+                                        <th>Results</th>
+                                        <th>Doctor</th>
+                                        <th>Time</th>
+                                        <!-- <th>LabVisit ID</th> -->
+                                        <!-- <th>Visit ID</th> -->
+                                    </thead>
+                                    <tbody>
+                                        {% for comp,diag,pres,date,time in prev_visits%}
+                                            <tr>
+                                                <td>{{comp}}</td>
+                                                <td>{{diag}}</td>
+                                                <td>{{pres}}</td>
+                                                <td>{{date}}</td>
+                                                <!-- <td>{{time}}</td> -->
+                                                <!-- <td>{{id}}</td> -->
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                {% endif %}
+                        </div>
+                        <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <!-- <button type="button" class="btn btn-primary">Understood</button> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+        <table class="table table-striped">
+            <thead>
+                <th style="width: 40px;">Visit ID</th>
+                <th style="width: 50px;">Diagnosis</th>
+                <th style="width: 75px;">Prescription</th>
+                <th>Enter Details</th>
+                <th>Submit</th>
+            </thead>
+            <tbody>
+                {% for visit, diag, pres in elig_visits %}
+                    <tr>
+                        <form action="{% url 'medicalvisit:submit-labvisit' visit %}" method="post">
+                            {% csrf_token %}
+                            <td>{{visit}}</td>
+                            <td>{{diag}}</td>
+                            <td>{{pres}}</td>
+                            <td>
+                                <div class="form-floating">
+                                    <textarea class="form-control" placeholder="Leave a comment here" id="id_labdetails" name="labdetails" required></textarea>
+                                    <label for="floatingTextarea">Lab Visit Details</label>
+                                </div>
+                            </td>
+                            <td>
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </td>
+                        </form>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
