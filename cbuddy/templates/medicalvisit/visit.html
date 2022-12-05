@@ -37,10 +37,153 @@
       limit: Infinity,
       minLength: 1
     },
-    // onChipAdd: addChip(chip['tag']),
   });})
 </script>
 
+<script>
+    function string_to_slug (str) {
+        str = str.replace(/^\s+|\s+$/g, ''); // trim
+        // str = str.toLowerCase();
+
+        // remove accents, swap ñ for n, etc
+        var from = "àáäâèéëêìíïîòóöôùúüûñç·/_,:;";
+        var to   = "aaaaeeeeiiiioooouuuunc------";
+        for (var i=0, l=from.length ; i<l ; i++) {
+            str = str.replace(new RegExp(from.charAt(i), 'g'), to.charAt(i));
+        }
+
+        str = str//.replace(/[^a-z0-9 -]/g, '') // remove invalid chars
+            // .replace(/\s+/g, '-') // collapse whitespace and replace by -
+            .replace(/-+/g, '-'); // collapse dashes
+
+        return str;
+    }
+
+    function getDrugs(){
+        var elems = document.querySelectorAll('.chips');
+        var instance = M.Chips.getInstance(elems[0]).chipsData;
+        var drugList = [];
+        for (var i=0; i<instance.length; i++){
+            drugList.push(instance[i]['tag']);
+        }
+        return drugList;
+    }
+
+    function getChips(){
+        drugList = getDrugs();
+        createPres(drugList);
+        console.log(drugList);
+    }
+
+    function createPres(array){
+        var elem1 = document.querySelectorAll('.change');
+        // elem1.html('Hello World);
+        var ht = "";
+        if (array.length != 0){
+            ht = ('<table class="table table-striped"><thead><th>Drug</th> <th>Amount</th> <th>Times</th> <th>Days</th></thead><tbody>')
+            for (var j = 0; j<array.length; j++){
+                ht = ht + ('<tr><td>'+array[j]+'</td> <td><input type="number"id="tabs"></td> <td><input type="number"id="times"></td><td><input type="number"id="days"></td>'+'</tr>');
+            }
+            ht = ht + '</tbody></table>'
+        }else {
+                ht = '<div class="row">Please Click Submit Button to complete Medical Encounter</div>';
+            }
+        elem1[0].innerHTML = ht
+        console.log(elem1);
+    }
+    function validate(array){
+        var state = [];
+        for (var i=0; i<array.length; i++){
+            if (array[i].length == 0){
+                return false;
+            } else {
+            for (var j=0; j<array[0].length; j++){
+                if(array[i][j]==""||array[i][j]<=0){
+                    state.push(false);
+                } else{
+                    state.push(true);
+                }
+            }
+        }
+        console.log(state);
+        return state.every(checkItem);}
+    }
+
+    function checkItem(item){
+        return item == true;
+    }
+
+    function medformValidate(array){
+        var state = [];
+        for(var i=0; i<array.length; i++){
+            if (array[i]==""|array[i]==null){
+                state.push(false);
+            } else { 
+                state.push(true); 
+            }
+        }
+        console.log(state);
+        return state.every(checkItem);
+    }
+
+    function getPres(){
+        var elem1 = document.querySelectorAll('[id=tabs]');
+        var elem2 = document.querySelectorAll('[id=times]');
+        var elem3 = document.querySelectorAll('[id=days]');
+        // var elem4 = document.querySelectorAll('[id=id_unit]');
+
+        var comp = document.querySelectorAll('[id=id_complaint]')[0].value;
+        var names = document.querySelectorAll('[id=id_patient]')[0].outerText;
+        var diag = document.querySelectorAll('[id=id_diagnosis]')[0].value;
+        // var adm = document.getElementById('id_admit').value;
+
+        console.log(names);
+
+        // comp = comp.toString().replaceAll('/', '-');
+        comp = string_to_slug(comp.toString());
+        // diag = diag.toString().replaceAll('/', '-');
+        diag = string_to_slug(diag.toString());
+        names = string_to_slug(names.toString());
+
+        var ss1 = []
+        var ss2 = []
+        var ss3 = []
+        // var ss4 = []
+
+        for (var i=0; i<elem1.length; i++){
+            ss1.push(elem1[i].value);
+            ss2.push(elem2[i].value);
+            ss3.push(elem3[i].value);
+            // ss4.push(elem4[i].value);
+        }
+
+        totalScores = [ss1, ss2, ss3];
+        console.log(validate(totalScores));
+        // console.log([comp, diag, adm]);
+        var drugs = getDrugs();
+        var med = `{{vq}}`;
+        med.toString().replace('L', '%20');
+        console.log(med);
+        if (medformValidate([names, comp, diag])==false){
+            alert("Please Enter Values in Medical Encounter Form");
+        } else {
+                if (drugs.length ==  0){
+                    console.log('This the data State: ', medformValidate([names, comp, diag]));
+                    console.log('It went');
+                    // location = 'getpresnp/'+names+'/'+med+'/'+comp+'/'+diag+'/'+ adm;       
+                } else {if(validate(totalScores)){
+                    //drugs = getDrugs();
+                    console.log(totalScores);
+                    console.log(drugs);
+                    console.log('it went');
+                    // location = 'getpres/'+names+'/'+med+'/'+comp+'/'+diag+'/'+adm+'/'+drugs.toString()+'/'+totalScores.toString();
+                } else{
+                    alert("Please fill/Check all Text Boxes!");
+                }
+            }
+        }
+    }
+</script>
 
 
 <div class="row"></div>
@@ -57,7 +200,7 @@
                     </tr>
                     <tr>
                         <td>Student Number: </td>
-                        <td>{{student.regno}}</td>
+                        <td id="id_patient">{{student.regno}}</td>
                     </tr>
                     <tr>
                         <td>Set: </td>
@@ -90,7 +233,7 @@
                 <div class="center">
                     <div class="btn-group" role="group" aria-label="Basic example">
                         <a href="/" class="btn btn-danger">Cancel</a>
-                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModalPres">Submit</button>
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModalPres" onclick="getChips()">Submit</button>
                     </div>
     
                     <!-- Modal -->
@@ -136,18 +279,18 @@
                 </div>
                 <!-- Modal -->
                 <div class="modal fade" id="exampleModalPres" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                    <div class="modal-dialog">
+                    <div class="modal-dialog modal-dialog-scrollable, modal-lg">
                         <div class="modal-content">
                             <div class="modal-header">
                             <h5 class="modal-title" id="staticBackdropLabel">See Previous Visits</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                ...
+                                <div class="change"></div>
                             </div>
                             <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <!-- <button type="button" class="btn btn-primary">Understood</button> -->
+                            <button type="button" class="btn btn-primary" onclick="getPres()">Submit</button>
                             </div>
                         </div>
                     </div>

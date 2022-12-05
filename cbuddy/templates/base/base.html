@@ -35,6 +35,7 @@
                             <i class="fs-5 bi-house"></i><span class="ms-1 d-none d-sm-inline">Home</span>
                         </a>
                     </li>
+                   <li><div class="divider"></div></li>
                     {% if role == 'DOCTOR' %}
                         <li class="nav-item">
                             <a href="#" class="nav-link align-middle px-0 text-white" data-bs-toggle="modal" data-bs-target="#exampleModalbase">
@@ -47,6 +48,12 @@
                             </a>
                         </li>
                     {% endif %}
+                    <li class="nav-item">
+                        <a href="{% url 'medicalvisit:check-pres' %}" class="nav-link align-middle px-0 text-white">
+                            <i class="fs-5 bi-file-medical"></i> <span class="ms-1 d-none d-sm-inline">Check Student Prescription</span>
+                        </a>
+                    </li>
+                    <div class="divider"></div>
                     <li class="nav-item">
                         <a href="{% url 'studentinfo:landingpage' %}" class="nav-link px-sm-0 px-2 text-white">
                             <i class="fs-5 bi-search"></i><span class="ms-1 d-none d-sm-inline">Search Student Medical History</span>
@@ -62,11 +69,8 @@
                             <i class="fs-5 bi-file-medical"></i> <span class="ms-1 d-none d-sm-inline">Student on Medication</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="{% url 'medicalvisit:check-pres' %}" class="nav-link align-middle px-0 text-white">
-                            <i class="fs-5 bi-file-medical"></i> <span class="ms-1 d-none d-sm-inline">Check Student Prescription</span>
-                        </a>
-                    </li>
+                    <li class="nav-item"><div class="divider"></div></li>
+                    
                     {% if power_user %}
                     <li class="nav-item">
                         <a href="{% url 'studentinfo:add-new-allergy' %}" class="nav-link align-middle px-0 text-white">
@@ -78,10 +82,22 @@
                             <i class="fs-5 bi-file-medical"></i> <span class="ms-1 d-none d-sm-inline">Create New User</span>
                         </a>
                     </li>
+                    <div class="divider"></div>
                     {% endif %}
+
                     <li class="nav-item">
                         <a href="{% url 'drugmanagement:add-new-drug' %}" class="nav-link align-middle px-0 text-white">
                             <i class="fs-5 bi-file-medical"></i> <span class="ms-1 d-none d-sm-inline">Add New Drug+</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'drugmanagement:restock-drug' %}" class="nav-link align-middle px-0 text-white">
+                            <i class="fs-5 bi-file-medical"></i> <span class="ms-1 d-none d-sm-inline">Restock Drugs</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'drugmanagement:checkout-drug' %}" class="nav-link align-middle px-0 text-white">
+                            <i class="fs-5 bi-file-medical"></i> <span class="ms-1 d-none d-sm-inline">Checkout Drugs</span>
                         </a>
                     </li>
                     <li class="nav-item">

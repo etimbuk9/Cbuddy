@@ -139,9 +139,10 @@
         if (medformValidate(stock)){
             var drugs = getChips();
             console.log(drugs, stock);
-            new_loc = `restock-drug/${final_drugs.join('->')}/${stock.toString()}`
-            location = new_loc;
+            new_loc = `checkout-drug/${final_drugs.join('->')}/${stock.toString()}`
             console.log(new_loc)
+            location = new_loc;
+            
         } else{
             alert('Please ensure that all fields are filled!');
         }
@@ -164,7 +165,7 @@
                     <div class="accordion-item">
                       <h2 class="accordion-header" id="headingOne">
                         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                          Restock Drugs
+                          Checkout Drugs
                         </button>
                       </h2>
                       {% if not results %}

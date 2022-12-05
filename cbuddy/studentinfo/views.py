@@ -1,4 +1,5 @@
 from django.shortcuts import render, HttpResponse, redirect
+from medicalvisit.views import end_overdue
 import global_vars
 from medicalvisit.views import getStudNos
 from .forms import *
@@ -75,6 +76,7 @@ def addNewAllergy(request):
         })
 
 def students_on_meds(request):
+    end_overdue(7)
     student_models = getStudentsOnMedication()
     return render(request, 'studentinfo/studs-on-meds.html', context={
             'appuser': global_vars.exportUserInfo(request)[0],

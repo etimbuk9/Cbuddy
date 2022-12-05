@@ -66,3 +66,19 @@ def getLabVisits(studentno):
         d1 = d1[['m.date', 'm.Results', 'm.doctor', 'm.time', 'm.name']]
         d2 = [list(d1.iloc[x,:]) for x in range(d1.shape[0])]
     return d2
+
+def getDrugs():
+    if graph:
+        query = "match(n:Drug) return n.name as info"
+        data = graph.run(query).to_data_frame()
+        studs = list(data['info'])
+        return studs
+    return []
+
+def getDrugQtys():
+    if graph:
+        query = "match(n:Drug) return n.quantity as info"
+        data = graph.run(query).to_data_frame()
+        studs = list(data['info'])
+        return studs
+    return []

@@ -106,6 +106,8 @@ def submitLabResult(request, medname):
     return redirect('authen:login')
 
 
+
+
 ## Utilities
 def getVisits4Labvisit(regno):
     d2 = []
