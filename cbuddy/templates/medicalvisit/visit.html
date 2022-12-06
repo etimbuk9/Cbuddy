@@ -41,6 +41,21 @@
 </script>
 
 <script>
+    names = {{drugs|safe}};
+    qty = {{qtys|safe}};
+    var result = Object.keys(names);
+    var output = {};
+    var output2 = {};
+    var final_drugs = [];
+    for (var i=0; i<names.length; i++){
+        var dName = names[i];
+        dName = dName.toString().replace('"');
+        dName = dName.trim();
+        output[dName] = qty[i];
+        output2[names[i]] = qty[i];
+    }
+    var old_stock = []
+
     function string_to_slug (str) {
         str = str.replace(/^\s+|\s+$/g, ''); // trim
         // str = str.toLowerCase();
@@ -63,26 +78,35 @@
         var elems = document.querySelectorAll('.chips');
         var instance = M.Chips.getInstance(elems[0]).chipsData;
         var drugList = [];
+        var qtyList = [];
+        console.log(output);
         for (var i=0; i<instance.length; i++){
             drugList.push(instance[i]['tag']);
+            for (var j=0; j<Object.keys(output).length; j++){
+                if(Object.keys(output)[j] == instance[i]['tag']){
+                    qtyList.push(Object.values(output)[j])
+                    final_drugs.push(Object.keys(output2)[j])
+                }
+            }
         }
-        return drugList;
+        old_stock = qtyList;
+        return drugList;        
     }
 
     function getChips(){
         drugList = getDrugs();
-        createPres(drugList);
+        createPres(drugList, old_stock);
         console.log(drugList);
     }
 
-    function createPres(array){
+    function createPres(array, qtys){
         var elem1 = document.querySelectorAll('.change');
         // elem1.html('Hello World);
         var ht = "";
         if (array.length != 0){
-            ht = ('<table class="table table-striped"><thead><th>Drug</th> <th>Amount</th> <th>Times</th> <th>Days</th></thead><tbody>')
+            ht = ('<table class="table table-striped"><thead><th>Drug</th><th>Current Stock</th> <th>Amount</th> <th>Times</th> <th>Days</th></thead><tbody>')
             for (var j = 0; j<array.length; j++){
-                ht = ht + ('<tr><td>'+array[j]+'</td> <td><input type="number"id="tabs"></td> <td><input type="number"id="times"></td><td><input type="number"id="days"></td>'+'</tr>');
+                ht = ht + ('<tr><td>'+array[j]+'</td><td>'+qtys[j]+'</td> <td><input type="number"id="tabs"></td> <td><input type="number"id="times"></td><td><input type="number"id="days"></td>'+'</tr>');
             }
             ht = ht + '</tbody></table>'
         }else {
@@ -161,22 +185,23 @@
         console.log(validate(totalScores));
         // console.log([comp, diag, adm]);
         var drugs = getDrugs();
-        var med = `{{vq}}`;
-        med.toString().replace('L', '%20');
-        console.log(med);
         if (medformValidate([names, comp, diag])==false){
             alert("Please Enter Values in Medical Encounter Form");
         } else {
                 if (drugs.length ==  0){
                     console.log('This the data State: ', medformValidate([names, comp, diag]));
                     console.log('It went');
-                    // location = 'getpresnp/'+names+'/'+med+'/'+comp+'/'+diag+'/'+ adm;       
+                    var new_loc = 'get-pres/'+names+'/'+comp+'/'+diag;
+                    console.log(new_loc);
+                    location = new_loc;       
                 } else {if(validate(totalScores)){
                     //drugs = getDrugs();
                     console.log(totalScores);
                     console.log(drugs);
                     console.log('it went');
-                    // location = 'getpres/'+names+'/'+med+'/'+comp+'/'+diag+'/'+adm+'/'+drugs.toString()+'/'+totalScores.toString();
+                    var new_loc = 'get-pres/'+names+'/'+comp+'/'+diag+'/'+final_drugs.join('->')+'/'+totalScores.toString();
+                    console.log(new_loc);
+                    location = new_loc;
                 } else{
                     alert("Please fill/Check all Text Boxes!");
                 }

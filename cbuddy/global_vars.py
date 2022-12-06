@@ -43,7 +43,7 @@ def exportUserInfo(request):
         return user, role
     except Exception as err:
         print(err)
-        chk = False
+        chk = True
     # print(chk, user)
     return chk, chk
 

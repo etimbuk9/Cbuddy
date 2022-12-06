@@ -24,4 +24,6 @@ urlpatterns = [
     path('check-pres', checkStudentPrescription, name='check-pres'),
     path('labvisit', newLabVisit, name='labvisit'),
     path('submit-labvisit/<medname>', submitLabResult, name='submit-labvisit'),
+    path('get-pres/<pname>/<comp>/<diag>/<drugs>/<pres>', getPres, name='get-pres'),
+    path('get-pres/<pname>/<comp>/<diag>', getPresnp, name='get-presnp'),
 ]
