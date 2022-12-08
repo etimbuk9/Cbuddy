@@ -95,7 +95,7 @@ def moveToDispense(request, regno):
 ## Utility Functions
 def getStudentsOnMedication():
     d1 = []
-    query = 'MATCH(a:Person)-[*]->(m:Medication) where m.ongoing=1 return a.name, a.id, a.gender'
+    query = 'MATCH(a:Person)-[*]->(m:Medication) where m.ongoing=1 return distinct a.name, a.id, a.gender'
     d = global_vars.graph.run(query).to_data_frame()
     if d.shape[0] != 0:
         d1 = [list(d.iloc[x,:]) for x in range(d.shape[0])]

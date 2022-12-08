@@ -1,0 +1,98 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block content %}
+<h5>Dispense Medication</h5>
+<table class="table table-striped">
+    <tbody>
+        <tr>
+            <th>Cycle ID</th>
+            <td>{{medname}}</td>
+        </tr>
+        <tr>
+            <th>Diagnosis</th>
+            <td>{{diag}}</td>
+        </tr>
+        <tr>
+            <th>Prescription</th>
+            <td>{{pres}}</td>
+        </tr>
+
+    </tbody>
+</table>
+<br>
+<p class="display-6">Medication</p>
+<br>
+
+{% for a,b,c,e,f,g,d in tab %}
+<div class="card">
+    <div class="card-content">
+        <span class="card-title">{{a}}</span>
+        {% if g %}
+            <table>
+                <thead>
+                <tr>
+                    {% for c4 in c %}
+                    <th>Day {{c4}}</th>
+                    {% endfor %}
+                </tr>
+                </thead>
+                {% for b1 in d %}
+                <tr>
+                    {% for c1,c2 in b1 %}
+                    <td>
+                        <div class="switch">
+                            <label>
+                                {% if c1 %}
+                                {{c2}}
+                                <input disabled type="checkbox" checked="{{c1}}" id="drugsGiven">
+                                {% else %}
+                                <input disabled type="checkbox" id="drugsGiven">
+                                {% endif %}
+                                <span class="lever"></span>
+                            </label>
+                        </div>
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <table>
+                <thead>
+                <tr>
+                    {% for c4 in c %}
+                    <th>Day {{c4}}</th>
+                    {% endfor %}
+                </tr>
+                </thead>
+                {% for b1 in d %}
+                <tr>
+                    {% for c1,c2 in b1 %}
+                    <td>
+                        <div class="switch">
+                            <label>
+                                {% if c1 %}
+                                {{c2}}
+                                <input disabled type="checkbox" checked="{{c1}}" id="drugsGiven">
+                                {% else %}
+                                <input type="checkbox" id="drugsGiven">
+                                {% endif %}
+                                <span class="lever"></span>
+                            </label>
+                        </div>
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </table>
+        {% endif %}
+    </div>
+</div>
+{% endfor %}
+<div class="btn-group d-flex" role="group" aria-label="Basic example">
+    <a class="btn btn-danger" href="#">Stop Medication Cycle</a>
+    <a class="btn btn-success">Confirm Dosage</a>
+</div>
+
+{% endblock %}

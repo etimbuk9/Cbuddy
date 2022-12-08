@@ -128,8 +128,40 @@ def getPresnp(request, pname, comp, diag):
 
     return redirect('authen:login')
 
+def drugchart(request, medname):
+    medname = medname[:4]+'/'+medname[5:]
+    print(getPrescriptionfromMedname(medname))
+    visit_diag, visit_pres = getPrescriptionfromMedname(medname)
+
+    tab = getMedInfo(medname)
+    # print(tab)
+
+    for num in range(len(tab)):
+        if len(tab[num][-1]) == 1:
+            if type(tab[num][-1][0]) is tuple:
+                tab[num][-1][0] = (tab[num][-1][0][0], str(tab[num][-1][0][1]).lower())
+                tab[num][-1] = [tab[num][-1]]
+    print(tab)
+    return render(request, 'medicalvisit/drugchart.html', context={
+            'appuser': global_vars.exportUserInfo(request)[0],
+            'role': global_vars.exportUserInfo(request)[1],
+            'medname':medname,
+            'diag':visit_diag,
+            'pres':visit_pres,
+            'tab': tab,
+        })
+
 
 ## Utilities
+def getPrescriptionfromMedname(medname):
+    query = 'match(n:Medication{name:"'+medname+'"})--(v:Visit) return v.Diagnosis, v.Prescription'
+    data = global_vars.graph.run(query).to_data_frame()
+
+    if data.shape[0] != 0:
+        d2 = list(data.iloc[0,:])
+        return d2
+    return []
+
 def add_visit(regno, comp, diag, date1, time, user, pres="", medqry=""):
     if medqry != "":
         query = 'MATCH(n:Person{id:' + regno + '})' + 'MERGE(v:Visit{name:"' + regno + '/' + str(dt.now()) + '"}) ' + 'SET v.Complain = "' + comp + '" ' + 'SET v.Diagnosis = "' + diag + '" ' + 'SET v.Prescription = "' + pres + '" ' + 'SET v.date = "' + date1 + '" ' + 'SET v.time = "' + time + '" SET v.doctor= "' + user +  '" ' + medqry + ' MERGE (n)-[:VISITED]->(v) MERGE (n)-[:CURRENTMEDS]->(m) MERGE (v)<-[:CYCLEFOR]-(m)'
@@ -188,7 +220,7 @@ def getMedCycles(regno):
     d1 = global_vars.graph.run(query).to_data_frame()
     print(d1.shape)
     if d1.shape[0] != 0:
-        d2 = [(x,y) for x,y in zip(d1['m.name'], d1['m.prescription'])]
+        d2 = [(x,y, str(x).replace('/', '-')) for x,y in zip(d1['m.name'], d1['m.prescription'])]
     return d2
 
 
@@ -235,3 +267,64 @@ def end_overdue(no_of_days):
                 print('done')
             except:
                 pass
+
+def getMedInfo(medname):
+    import pandas as pd
+    medName = str(medname)
+    medName.replace('%20', ' ')
+    query = 'Match(n:Medication{name:"' + str(medName) + '"}) return n.meds, n.times, n.days, n.unit, n.state, n.nurses'
+    data = global_vars.graph.run(query).to_data_frame()
+    newdata = []
+    output = []
+    # try:
+    st = data['n.state']
+    nst = data['n.nurses']
+    
+
+    for col in data.columns:
+        print(data[col])
+    # print(data)
+    # print(data.shape)
+    # print(data.iloc[0,5])
+    try:
+        st = st[0]
+        nst = nst[0]
+        combo = []
+        for i in range(len(st)):
+            combo.append((st[i], nst[i]))
+        hu = []
+        hu1 = []
+        hu2 = []
+        count = 0
+        for a, b in zip(data['n.times'], data['n.days']):
+            for c in range(len(a)):
+                A = int(a[c]) * int(b[c])
+                if c + 1 != len(a):
+                    h = st[count:count + A]
+                    h1 = nst[count:count + A]
+                    h2 = combo[count:count + A]
+                else:
+                    h = st[count:]
+                    h1 = nst[count:]
+                    h2 = combo[count:]
+                h = np.array(h)
+                h1 = pd.DataFrame(h1)
+                # print(h1)
+                if int(a[c]) * int(b[c]) > 1:
+                    h = np.resize(h, [int(a[c]), int(b[c])])
+                    h1 = h1.values.reshape((int(a[c]), int(b[c])))
+                    h2 = [h2[i:i + int(b[c])] for i in range(0, len(h2), int(b[c]))]
+                count += A
+                hu.append(h.tolist())
+                hu1.append(pd.DataFrame(h1))
+                hu2.append(h2)
+        # print(hu2)
+        n = zip(tuple(eval(data.iloc[0, 0])), tuple(map(lambda x: int(x), data.iloc[0, 1])),
+                tuple(map(lambda x: int(x), data.iloc[0, 2])), tuple(map(lambda x: int(x), data.iloc[0, 3])),
+                tuple(data.iloc[0, 4]), tuple(data.iloc[0, 5]), hu2)
+        for a, b, c, e, f, g, d in n:
+            newdata.append([a, list(range(b)), list(range(1, c + 1)), e, f, g, d])
+    except Exception as err:
+        print(err)
+    # print(newdata)
+    return newdata

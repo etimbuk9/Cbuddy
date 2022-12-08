@@ -11,7 +11,7 @@ def home(request, name, role):
                 'appuser':name, 
                 'role':role, 
                 'visits':getVisitsintheLastWeek(7), 
-                'today_visits':getVisitsintheLastWeek(-1),
+                'today_visits':getVisitsintheLastWeek(0),
                 'students': getActiveStudents(),
                 'active_users': global_vars.users.shape[0],
             })
@@ -23,6 +23,7 @@ def getVisitsintheLastWeek(dd):
     from_date = current_date - td(days=dd)
     from_date = from_date.strftime('%Y-%m-%d')
     query = f'match(n:Visit) where n.date >= "{from_date}" return count(n)'
+    print(query)
     data = global_vars.graph.run(query).to_data_frame()
     print(query, data)
     return data.iloc[0,0]

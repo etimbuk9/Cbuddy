@@ -25,12 +25,12 @@
                             <th>Actions</th>
                         </thead>
                         <tbody>
-                            {% for cycle, Pres in cycles %}
+                            {% for cycle, Pres, cycle_ in cycles %}
                                 <tr>
                                     <td>{{cycle}}</td>
                                     <td>{{Pres}}</td>
                                     <td>
-                                        <a href="#" class="btn btn-success">Dispense</a>
+                                        <a href="{% url 'medicalvisit:drug-chart' cycle_ %}" class="btn btn-success">Dispense</a>
                                     </td>
                                 </tr>
                             {% endfor %}

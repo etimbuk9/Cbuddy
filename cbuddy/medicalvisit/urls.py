@@ -22,6 +22,7 @@ app_name = 'medicalvisit'
 urlpatterns = [
     path('', visit, name='visit'),
     path('check-pres', checkStudentPrescription, name='check-pres'),
+    path('drug-chart/<medname>', drugchart, name='drug-chart'),
     path('labvisit', newLabVisit, name='labvisit'),
     path('submit-labvisit/<medname>', submitLabResult, name='submit-labvisit'),
     path('get-pres/<pname>/<comp>/<diag>/<drugs>/<pres>', getPres, name='get-pres'),
