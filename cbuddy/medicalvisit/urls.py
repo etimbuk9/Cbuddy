@@ -23,8 +23,10 @@ urlpatterns = [
     path('', visit, name='visit'),
     path('check-pres', checkStudentPrescription, name='check-pres'),
     path('drug-chart/<medname>', drugchart, name='drug-chart'),
+    path('setdrugchart/<medname>/<choices>', setdrugchart, name='setdrugchart'),
     path('labvisit', newLabVisit, name='labvisit'),
     path('submit-labvisit/<medname>', submitLabResult, name='submit-labvisit'),
     path('get-pres/<pname>/<comp>/<diag>/<drugs>/<pres>', getPres, name='get-pres'),
     path('get-pres/<pname>/<comp>/<diag>', getPresnp, name='get-presnp'),
+    path('stop-meds/<medname>', stop_meds, name='stop-meds'),
 ]

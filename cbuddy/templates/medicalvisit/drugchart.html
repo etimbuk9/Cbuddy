@@ -2,6 +2,19 @@
 {% load static %}
 
 {% block content %}
+<script>
+    function getChoices(medName){
+       console.log(medName);
+    var elem1 = document.querySelectorAll('[id=drugsGiven]');
+    var dList = [];
+    for (var i=0; i<elem1.length; i++){
+        dList.push(elem1[i].checked);
+    }
+    console.log(dList);
+    location = '/medicalvisit/setdrugchart/'+medName+'/'+dList.toString();
+   }
+</script>
+
 <h5>Dispense Medication</h5>
 <table class="table table-striped">
     <tbody>
@@ -29,6 +42,7 @@
     <div class="card-content">
         <span class="card-title">{{a}}</span>
         {% if g %}
+        <!-- <div>with G</div> -->
             <table>
                 <thead>
                 <tr>
@@ -44,11 +58,11 @@
                         <div class="switch">
                             <label>
                                 {% if c1 %}
-                                {{c2}}
-                                <input disabled type="checkbox" checked="{{c1}}" id="drugsGiven">
-                                {% else %}
-                                <input disabled type="checkbox" id="drugsGiven">
-                                {% endif %}
+                                    {{c2}}
+                                    <input disabled type="checkbox" checked="{{c1}}" id="drugsGiven">
+                                    {% else %}
+                                    <input type="checkbox" id="drugsGiven">
+                                    {% endif %}
                                 <span class="lever"></span>
                             </label>
                         </div>
@@ -58,6 +72,7 @@
                 {% endfor %}
             </table>
         {% else %}
+        <!-- <div>without G</div> -->
             <table>
                 <thead>
                 <tr>
@@ -74,7 +89,7 @@
                             <label>
                                 {% if c1 %}
                                 {{c2}}
-                                <input disabled type="checkbox" checked="{{c1}}" id="drugsGiven">
+                                    <input disabled type="checkbox" checked="{{c1}}" id="drugsGiven">
                                 {% else %}
                                 <input type="checkbox" id="drugsGiven">
                                 {% endif %}
@@ -91,8 +106,8 @@
 </div>
 {% endfor %}
 <div class="btn-group d-flex" role="group" aria-label="Basic example">
-    <a class="btn btn-danger" href="#">Stop Medication Cycle</a>
-    <a class="btn btn-success">Confirm Dosage</a>
+    <a class="btn btn-danger" href="{% url 'medicalvisit:stop-meds' medname_ %}">Stop Medication Cycle</a>
+    <a class="btn btn-success" onclick="getChoices(`{{medname_}}`)">Confirm Dosage</a>
 </div>
 
 {% endblock %}

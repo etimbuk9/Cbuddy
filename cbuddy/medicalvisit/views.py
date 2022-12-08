@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect, reverse, HttpResponse
 from .forms import *
 import global_vars
 from datetime import datetime as dt
@@ -6,7 +6,7 @@ from datetime import timedelta as td
 import numpy as np
 from .models import Student
 from authen import extras
-
+import pandas as pd
 # Create your views here.
 
 def visit(request):
@@ -129,30 +129,250 @@ def getPresnp(request, pname, comp, diag):
     return redirect('authen:login')
 
 def drugchart(request, medname):
-    medname = medname[:4]+'/'+medname[5:]
-    print(getPrescriptionfromMedname(medname))
-    visit_diag, visit_pres = getPrescriptionfromMedname(medname)
+    medname1 = medname.replace('->', '/')
+    # print(getPrescriptionfromMedname(medname1))
+    visit_diag, visit_pres = getPrescriptionfromMedname(medname1)
 
-    tab = getMedInfo(medname)
-    # print(tab)
+    tab = getMedInfo(medname1)
+    print(tab)
 
     for num in range(len(tab)):
         if len(tab[num][-1]) == 1:
             if type(tab[num][-1][0]) is tuple:
-                tab[num][-1][0] = (tab[num][-1][0][0], str(tab[num][-1][0][1]).lower())
-                tab[num][-1] = [tab[num][-1]]
+                tab[num][-1][0] = [(tab[num][-1][0][0], str(tab[num][-1][0][1]).lower())]
+                # tab[num][-1] = [tab[num][-1]]
     print(tab)
     return render(request, 'medicalvisit/drugchart.html', context={
             'appuser': global_vars.exportUserInfo(request)[0],
             'role': global_vars.exportUserInfo(request)[1],
-            'medname':medname,
+            'medname':medname1,
+            'medname_':medname,
             'diag':visit_diag,
             'pres':visit_pres,
             'tab': tab,
         })
 
+def stop_meds(request, medname):
+    medname1 = medname.replace('->', '/')
+    global_vars.graph.evaluate('match (m:Medication{name: "'+str(medname1)+'"}) set m.ongoing= 0')
+    return redirect('medicalvisit:check-pres')
+
+
+def setdrugchart(request, medname, choices):
+    medname1 = medname.replace('->', '/')
+    regno = medname.split('->')[0]
+    unis1 = global_vars.graph.run('match (m:Medication{name:"'+medname1+'"}) return m.unit')
+    unis1 = unis1.to_data_frame()
+    unis1 = unis1.iloc[0,0]
+    #print(unis)
+
+
+    meds = search_meds(regno, medname1)[-1]
+    states = [eval(str(x).capitalize()) for x in str(choices).split(',')]
+    states = prep_state_matrix(regno, medname1, states)[0]
+    statesold = search_meds(regno, medname1)[0]
+    nstates = createNurses(request, regno, medname1, states, states, statesold)
+    # nstates = prep_state_matrix(medname[:4], medname1, states)[1]
+    # print(meds)
+    qmeds = []
+    st = []
+    nst = []
+    for a in range(len(meds)):
+        st1 = states[a]
+        nst1 = nstates[a]
+        dims = st1.shape
+        if len(dims) == 1:
+            g = st1
+            g1 = nst1.to_numpy()
+        else:
+            g = np.resize(st1, [dims[0] * dims[1]])
+            g1 = np.resize(nst1, [dims[0] * dims[1]])
+        g = g.tolist()
+        print('G1 is: ', g1)
+        g1 = g1.tolist()
+        if len(g1) == 1:
+            g1 = g1[0]
+        st.append(g)
+        nst.append(g1)
+    st = [j for i in st for j in i]
+    nst = [j for i in nst for j in i]
+    nst = [str(x) for x in nst]
+    
+    # nst = [global_vars.exportUserInfo(request)[0] for x,y in zip(st, nst) if x if not y]
+    # print(st)
+    # print(nst)
+    
+    unis = np.zeros((1, len(unis1)))
+    for a in range(len(meds)):
+        dd = global_vars.graph.run('match (d:Drug{name:"'+meds[a]+'"}) return d.quantity')
+        dd = dd.to_data_frame()
+        dd = dd.iloc[0,0]
+        qmeds.append(float(dd))
+        HH = states[a] == statesold[a]
+
+        if len(HH.shape) == 1:
+            HH = np.reshape(HH, (-1,1))
+
+
+        for i in range(HH.shape[0]):
+            for j in range(HH.shape[1]):
+                if HH[i, j] == False:
+                    unis[0,a] += unis1[a]
+                else:
+                    unis[0,a] = unis[0,a]
+                # elif HH[i, j] == True and statesold[a][i, j] == 0:
+                #     nst1.iloc[i, j] = '0'
+                # else:
+                #     nst1.iloc[i, j] = str(nst1.iloc[i, j])
+    # print(unis)
+    # print(qmeds)
+    newstock = np.array(qmeds) - unis
+    # print(newstock)
+    for a1 in range(len(meds)):
+        try:
+            global_vars.graph.evaluate('Match(n:User{name:"' + global_vars.exportUserInfo(request)[0] + '"}) Match(d:Drug{name:"' + meds[
+                a1] + '"}) Create(n)-[r:DISPENSED {date:"' + str(dt.now()) + '"}]->(d) SET r.AMOUNT = ' + str(
+                unis[0,a1]))
+            disp = chkdispense(meds[a1]).iloc[0,0]
+            print(disp)
+            if disp==1:
+                global_vars.graph.evaluate(
+                    'MERGE (n:Drug{name:"' + meds[a1] + '"})' + ' SET n.quantity = toInteger(' + str(newstock[0,a1]) + ') ')
+            else:
+                print(qmeds[a1])
+                global_vars.graph.evaluate(
+                    'MERGE (n:Drug{name:"' + meds[a1] + '"})' + ' SET n.quantity =' + str(int(qmeds[a1])) + ' ')
+        except Exception as err:
+            print(meds[a1], 'The error is: ' ,err)
+            pass
+    qry = 'match (m:Medication{name: "' + medname1 + '"}) set m.state=' + str(st) +' set m.nurses='+ str(nst)
+    print(qry)
+    #qry = 'match (n:Person{id:'+str(regno)+'}) merge(m:Medication{name: "'+str(regno)+'/'+d1.strftime('%Y-%m-%d')+'-'+d2.strftime('%Y-%m-%d')+'"}) set m.state='+str(g.tolist())+' merge (n)-[:CURRENTMEDS]->(m)'
+    global_vars.graph.evaluate(qry)
+    if all(st):
+        global_vars.graph.evaluate('match (m:Medication{name: "' + medname1 + '"}) set m.ongoing=0 set m.finished = 1')
+    return redirect('medicalvisit:check-pres')
+
 
 ## Utilities
+
+def createNurses(request, regno, medname, choices, states, statesold):
+    nstatesnew = []
+    nstates = prep_state_matrix(regno, medname, choices)[1]
+    print(nstates)
+    for a in range(len(states)):
+        nst1 = nstates[a]
+        # print('')
+        # print(states[a], statesold[a], nst1)
+        HH = states[a]==statesold[a]
+        # HH = pd.DataFrame(HH)
+        
+        if len(HH.shape) == 1:
+            HH = np.reshape(HH, (-1,1))
+
+        # print('')
+        # print(HH.shape)
+        if HH.shape[0]*HH.shape[1]!=1:
+            for i in range(HH.shape[0]):
+                for j in range(HH.shape[1]):
+                    if HH[i,j]==False:
+                        nst1.iloc[i,j] = str(global_vars.exportUserInfo(request)[0])+' '+ dt.strftime(dt.today(),'%Y-%m-%d %H:%M:%S')
+                    elif HH[i,j]==True and statesold[a][i,j]==0:
+                        nst1.iloc[i, j] = '0'
+                    else:
+                        nst1.iloc[i, j] = str(nst1.iloc[i, j])
+
+        nstatesnew.append(nst1)
+    return nstatesnew
+    
+
+def chkdispense(drug):
+    data = global_vars.graph.run('Match (n:Drug{name:"'+str(drug)+'"}) return n.dispensable')
+    data = data.to_data_frame()
+    return data
+
+def search_meds(regno, cyc):
+    import pandas as pd
+
+    # grph1 = G("http://" + Globalz.hostip + ":7474/db/data", user='neo4j', password="medical")
+    data = global_vars.graph.run('match (n{id:' + str(regno) + '})-[*]->(m:Medication{name:"' + cyc + '"})-[]->(v:Visit) return m.nurses, m.state,m.times,m.days, m.prescription, m.meds, v.Diagnosis')
+    data = data.to_data_frame()
+    pre = data['m.prescription'][0]
+    dig = data['v.Diagnosis'][0]
+    ptext = 'Diagnosis\n'+dig+'\n'+'Prescription\n'+pre
+    st = data['m.state']
+    nst = data['m.nurses']
+
+    # print(data)
+    # print(data.iloc[0,1])
+
+    st = st[0]
+    nst = nst[0]
+    hu = []
+    hu1 = []
+    count = 0
+    for a, b in zip(data['m.times'], data['m.days']):
+        for c in range(len(a)):
+            A = a[c]*b[c]
+            if c+1!=len(a):
+                h = st[count:count+A]
+                h1 = nst[count:count+A]
+            else:
+                h = st[count:]
+                h1 = nst[count:]
+            h = np.array(h)
+            h1 = pd.DataFrame(h1)
+            print(h)
+            if a[c]*b[c] > 1:
+                h = np.resize(h, [a[c], b[c]])
+                h1 = h1.values.reshape((a[c], b[c]))
+            
+            count+=A
+            hu.append(h)
+            hu1.append(pd.DataFrame(h1))
+    # print(data)
+    # print(data.iloc[0,1])
+    return hu,hu1, data['m.times'][0], data['m.days'][0], ptext, eval(data['m.meds'][0])
+
+def prep_state_matrix(regno, medname, choices):
+    import pandas as pd
+    data = global_vars.graph.run('match (n{id:' + str(regno) + '})-[*]->(m:Medication{name:"' + medname + '"})-[]->(v:Visit) return m.nurses, m.state,m.times,m.days, m.prescription, m.meds, v.Diagnosis')
+    data = data.to_data_frame()
+
+    st = data['m.state']
+    nst = data['m.nurses']
+
+    # print(data)
+    # print(data.iloc[0,1])
+
+    st = choices
+    nst = nst[0]
+    hu = []
+    hu1 = []
+    count = 0
+    for a, b in zip(data['m.times'], data['m.days']):
+        for c in range(len(a)):
+            A = a[c]*b[c]
+            if c+1!=len(a):
+                h = st[count:count+A]
+                h1 = nst[count:count+A]
+            else:
+                h = st[count:]
+                h1 = nst[count:]
+            h = np.array(h)
+            h1 = pd.DataFrame(h1)
+            print(h)
+            if a[c]*b[c] > 1:
+                h = np.resize(h, [a[c], b[c]])
+                h1 = h1.values.reshape((a[c], b[c]))
+            
+            count+=A
+            hu.append(h)
+            hu1.append(pd.DataFrame(h1))
+    # print(data)
+    # print(data.iloc[0,1])
+    return hu, hu1
+
 def getPrescriptionfromMedname(medname):
     query = 'match(n:Medication{name:"'+medname+'"})--(v:Visit) return v.Diagnosis, v.Prescription'
     data = global_vars.graph.run(query).to_data_frame()
@@ -220,7 +440,7 @@ def getMedCycles(regno):
     d1 = global_vars.graph.run(query).to_data_frame()
     print(d1.shape)
     if d1.shape[0] != 0:
-        d2 = [(x,y, str(x).replace('/', '-')) for x,y in zip(d1['m.name'], d1['m.prescription'])]
+        d2 = [(x,y, str(x).replace('/', '->')) for x,y in zip(d1['m.name'], d1['m.prescription'])]
     return d2
 
 
@@ -269,7 +489,6 @@ def end_overdue(no_of_days):
                 pass
 
 def getMedInfo(medname):
-    import pandas as pd
     medName = str(medname)
     medName.replace('%20', ' ')
     query = 'Match(n:Medication{name:"' + str(medName) + '"}) return n.meds, n.times, n.days, n.unit, n.state, n.nurses'
@@ -279,13 +498,9 @@ def getMedInfo(medname):
     # try:
     st = data['n.state']
     nst = data['n.nurses']
-    
 
-    for col in data.columns:
-        print(data[col])
-    # print(data)
-    # print(data.shape)
-    # print(data.iloc[0,5])
+    print('ST is here: ',type(st.iloc[0]))
+
     try:
         st = st[0]
         nst = nst[0]
@@ -318,11 +533,13 @@ def getMedInfo(medname):
                 hu.append(h.tolist())
                 hu1.append(pd.DataFrame(h1))
                 hu2.append(h2)
-        # print(hu2)
+        print(hu2)
         n = zip(tuple(eval(data.iloc[0, 0])), tuple(map(lambda x: int(x), data.iloc[0, 1])),
                 tuple(map(lambda x: int(x), data.iloc[0, 2])), tuple(map(lambda x: int(x), data.iloc[0, 3])),
                 tuple(data.iloc[0, 4]), tuple(data.iloc[0, 5]), hu2)
+        # print(n)
         for a, b, c, e, f, g, d in n:
+            # print(d)
             newdata.append([a, list(range(b)), list(range(1, c + 1)), e, f, g, d])
     except Exception as err:
         print(err)
