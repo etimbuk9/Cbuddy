@@ -49,6 +49,11 @@
                         </li>
                     {% endif %}
                     <li class="nav-item">
+                        <a href="#" class="nav-link align-middle px-0 text-white" data-bs-toggle="modal" data-bs-target="#exampleModalStaff">
+                            <i class="fs-5 bi-file-medical"></i> <span class="ms-1 d-none d-sm-inline">New Staff Visit</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="{% url 'medicalvisit:check-pres' %}" class="nav-link align-middle px-0 text-white">
                             <i class="fs-5 bi-file-medical"></i> <span class="ms-1 d-none d-sm-inline">Check Student Prescription</span>
                         </a>
@@ -163,6 +168,35 @@
                 </div>
             </div>
         </div>
+        
+        <div class="modal fade" id="exampleModalStaff" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Record New Staff Visit</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form method="get" action="#">
+                        <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="exampleFormControlInput1" class="form-label">Select Staff</label>
+                                    <input type="text" class="form-control" id="exampleFormControlInput1" placeholder="Type Staff Number or Name" list="staff_options" name="staff">
+                                </div>
+                        </div>
+                        <div class="modal-footer justify-content-center">
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </div>
+                    </form>
+                    <datalist id="staff_options">
+                        {% for stf in staff_info %}
+                            <option value="{{stf}}">
+                        {% endfor %}
+                    </datalist>
+                </div>
+            </div>
+        </div>
+
         <div class="col d-flex flex-column h-sm-100">
             <main class="row overflow-auto">
                 <div class="col pt-4">

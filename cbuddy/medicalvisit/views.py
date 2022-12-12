@@ -164,14 +164,12 @@ def setdrugchart(request, medname, choices):
     unis1 = global_vars.graph.run('match (m:Medication{name:"'+medname1+'"}) return m.unit')
     unis1 = unis1.to_data_frame()
     unis1 = unis1.iloc[0,0]
-    #print(unis)
-
 
     meds = search_meds(regno, medname1)[-1]
     states = [eval(str(x).capitalize()) for x in str(choices).split(',')]
     states = prep_state_matrix(regno, medname1, states)[0]
     statesold = search_meds(regno, medname1)[0]
-    nstates = createNurses(request, regno, medname1, states, states, statesold)
+    nstates = createNurses(request, regno, medname1, choices, states, statesold)
     # nstates = prep_state_matrix(medname[:4], medname1, states)[1]
     # print(meds)
     qmeds = []
@@ -346,6 +344,7 @@ def prep_state_matrix(regno, medname, choices):
     # print(data.iloc[0,1])
 
     st = choices
+    print('State List: ',st)
     nst = nst[0]
     hu = []
     hu1 = []
@@ -359,13 +358,14 @@ def prep_state_matrix(regno, medname, choices):
             else:
                 h = st[count:]
                 h1 = nst[count:]
+            print('H type is: ',h)
             h = np.array(h)
             h1 = pd.DataFrame(h1)
-            print(h)
+            # print(h)
             if a[c]*b[c] > 1:
                 h = np.resize(h, [a[c], b[c]])
                 h1 = h1.values.reshape((a[c], b[c]))
-            
+            print(h)
             count+=A
             hu.append(h)
             hu1.append(pd.DataFrame(h1))

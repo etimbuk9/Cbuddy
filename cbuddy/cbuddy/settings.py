@@ -70,6 +70,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'studentinfo.context_processors.get_students_processor',
                 'authen.context_processors.check_user_status_power',
+                'authen.context_processors.getStaff',
             ],
         },
     },
