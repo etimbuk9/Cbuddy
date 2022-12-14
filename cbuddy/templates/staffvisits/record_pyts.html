@@ -1,0 +1,33 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+
+{% block content %}
+    <h4 class="display-5">Staff Visits</h4>
+    <table class="table table-striped">
+        <thead>
+            <th>Name</th>
+            <th>Prescription</th>
+            <th>Enter Amount</th>
+            <th>Submit</th>
+        </thead>
+        <tbody>
+            {% for name, pres, doctor, amt, pd, id in transactions %}
+                <tr>
+                    <form method="post" action="{% url 'staffvisits:submit-amt' id %}">
+                        {% csrf_token %}
+                        <td>{{name}}</td>
+                        <td>{{pres}}</td>
+                        <td>
+                            <input type="number" name="amt" id="id_amt" required>
+                        </td>
+                        <td>
+                            <button class="btn btn-primary">Submit</button>
+                        </td>
+                        
+                    </form>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

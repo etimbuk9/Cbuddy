@@ -1,0 +1,332 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<script>
+    var all_chips = [];
+
+    function addChip(){
+        var instance = M.Chips.getInstance(elem);
+        all_chips.push(instance.chipsData);
+        console.log(all_chips);
+    }
+
+    $(document).ready(function(){
+        names = {{drugs|safe}};
+    var result = Object.keys(names);
+    var output = {};
+    for (var i=0; i<names.length; i++){
+        output[names[i]] = null;
+    }
+    console.log(output);
+    
+    var chip = {
+        tag: 'chip content',
+        image: '', //optional
+    };
+
+    $('.chips').chips();
+  $('.chips-placeholder').chips({
+    placeholder: 'Enter Drug',
+    secondaryPlaceholder: '+Tag',
+  });
+  $('.chips-autocomplete').chips({
+    autocompleteOptions: {
+      data: output,
+      limit: Infinity,
+      minLength: 1
+    },
+  });})
+</script>
+
+<script>
+    names = {{drugs|safe}};
+    qty = {{qtys|safe}};
+    var result = Object.keys(names);
+    var output = {};
+    var output2 = {};
+    var final_drugs = [];
+    for (var i=0; i<names.length; i++){
+        var dName = names[i];
+        dName = dName.toString().replace('"');
+        dName = dName.trim();
+        output[dName] = qty[i];
+        output2[names[i]] = qty[i];
+    }
+    var old_stock = []
+
+    function string_to_slug (str) {
+        str = str.replace(/^\s+|\s+$/g, ''); // trim
+        // str = str.toLowerCase();
+
+        // remove accents, swap ñ for n, etc
+        var from = "àáäâèéëêìíïîòóöôùúüûñç·/_,:;";
+        var to   = "aaaaeeeeiiiioooouuuunc------";
+        for (var i=0, l=from.length ; i<l ; i++) {
+            str = str.replace(new RegExp(from.charAt(i), 'g'), to.charAt(i));
+        }
+
+        str = str//.replace(/[^a-z0-9 -]/g, '') // remove invalid chars
+            // .replace(/\s+/g, '-') // collapse whitespace and replace by -
+            .replace(/-+/g, '-'); // collapse dashes
+
+        return str;
+    }
+
+    function getDrugs(){
+        var elems = document.querySelectorAll('.chips');
+        var instance = M.Chips.getInstance(elems[0]).chipsData;
+        var drugList = [];
+        var qtyList = [];
+        console.log(output);
+        for (var i=0; i<instance.length; i++){
+            drugList.push(instance[i]['tag']);
+            for (var j=0; j<Object.keys(output).length; j++){
+                if(Object.keys(output)[j] == instance[i]['tag']){
+                    qtyList.push(Object.values(output)[j])
+                    final_drugs.push(Object.keys(output2)[j])
+                }
+            }
+        }
+        old_stock = qtyList;
+        return drugList;        
+    }
+
+    function getChips(){
+        drugList = getDrugs();
+        createPres(drugList, old_stock);
+        console.log(drugList);
+    }
+
+    function createPres(array, qtys){
+        var elem1 = document.querySelectorAll('.change');
+        // elem1.html('Hello World);
+        var ht = "";
+        if (array.length != 0){
+            ht = ('<table class="table table-striped"><thead><th>Drug</th><th>Current Stock</th> <th>Amount</th></thead><tbody>')
+            for (var j = 0; j<array.length; j++){
+                ht = ht + ('<tr><td>'+array[j]+'</td><td>'+qtys[j]+'</td> <td><input type="number"id="tabs"></td>'+'</tr>');
+            }
+            ht = ht + '</tbody></table>'
+        }else {
+                ht = '<div class="row">Please Click Submit Button to complete Medical Encounter</div>';
+            }
+        elem1[0].innerHTML = ht
+        console.log(elem1);
+    }
+
+    function validate(array){
+        var state = [];
+        for (var i=0; i<array.length; i++){
+            if (array[i].length == 0){
+                return false;
+            } else {
+            for (var j=0; j<array[0].length; j++){
+                if(array[i][j]==""||array[i][j]<=0){
+                    state.push(false);
+                } else{
+                    state.push(true);
+                }
+            }
+        }
+        console.log(state);
+        return state.every(checkItem);}
+    }
+
+    function checkItem(item){
+        return item == true;
+    }
+
+    function medformValidate(array){
+        var state = [];
+        for(var i=0; i<array.length; i++){
+            if (array[i]==""|array[i]==null){
+                state.push(false);
+            } else { 
+                state.push(true); 
+            }
+        }
+        console.log(state);
+        return state.every(checkItem);
+    }
+
+    function getPres(){
+        var elem1 = document.querySelectorAll('[id=tabs]');
+        // var elem2 = document.querySelectorAll('[id=times]');
+        // var elem3 = document.querySelectorAll('[id=days]');
+        // var elem4 = document.querySelectorAll('[id=id_unit]');
+
+        var comp = document.querySelectorAll('[id=id_complaint]')[0].value;
+        var names = document.querySelectorAll('[id=id_patient]')[0].value;
+        var diag = document.querySelectorAll('[id=id_diagnosis]')[0].value;
+        // var adm = document.getElementById('id_admit').value;
+
+        console.log(names);
+
+        // comp = comp.toString().replaceAll('/', '-');
+        comp = string_to_slug(comp.toString());
+        // diag = diag.toString().replaceAll('/', '-');
+        diag = string_to_slug(diag.toString());
+        names = string_to_slug(names.toString());
+
+        var ss1 = []
+        var ss2 = []
+        var ss3 = []
+        // var ss4 = []
+
+        for (var i=0; i<elem1.length; i++){
+            ss1.push(elem1[i].value);
+            // ss2.push(elem2[i].value);
+            // ss3.push(elem3[i].value);
+            // ss4.push(elem4[i].value);
+        }
+
+        totalScores = [ss1];
+        console.log(validate(totalScores));
+        // console.log([comp, diag, adm]);
+        var drugs = getDrugs();
+        if (medformValidate([names, comp, diag])==false){
+            alert("Please Enter Values in Medical Encounter Form");
+        } else {
+                if (drugs.length ==  0){
+                    console.log('This the data State: ', medformValidate([names, comp, diag]));
+                    console.log('It went');
+                    var new_loc = 'get-pres/'+names+'/'+comp+'/'+diag;
+                    console.log(new_loc);
+                    // location = new_loc;       
+                } else {if(validate(totalScores)){
+                    //drugs = getDrugs();
+                    console.log(totalScores);
+                    console.log(drugs);
+                    console.log('it went');
+                    var new_loc = 'create-staff-visit/{{student.staff_id}}/'+names+'/'+comp+'/'+diag+'/'+final_drugs.join('->')+'/'+totalScores.toString();
+                    console.log(new_loc);
+                    location = new_loc;
+                } else{
+                    alert("Please fill/Check all Text Boxes!");
+                }
+            }
+        }
+    }
+</script>
+
+
+<div class="row"></div>
+<div class="card">
+    <h4 class="card-header">Record New Visit</h4>
+    <div class="row container-fluid">
+        <div class="card-body">
+            <br>
+            <table class="table table-striped">
+                <tbody>
+                    <tr>
+                        <td>Name:</td>
+                        <td>{{student.name}}</td>
+                    </tr>
+                    <tr>
+                        <td>Student Number: </td>
+                        <td>{{student.staff_id}}</td>
+                    </tr>
+                    {% if atts %}
+                        <tr>
+                            <td>Allegries</td>
+                            <td>
+                            {% for att in atts%}
+                                <div class="chip">
+                                    {{att}}
+                                </div>
+                            {% endfor %}
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+            <div class="row">
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModalPrevVisit">See Previous Visits</button>
+            </div>
+            <br>
+            <form>
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div class="chips chips-autocomplete chips-placeholder">
+                    <input class="pres">
+                </div>
+                <div class="center">
+                    <div class="btn-group" role="group" aria-label="Basic example">
+                        <a href="/" class="btn btn-danger">Cancel</a>
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModalPres" onclick="getChips()">Submit</button>
+                    </div>
+    
+                    <!-- Modal -->
+                    <div class="modal fade" id="exampleModalPrevVisit" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-scrollable modal-xl">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                            <h5 class="modal-title" id="staticBackdropLabel">Previous Visits</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                {% if prev_visits%}
+                                <table class="table table-striped">
+                                    <thead>
+                                        <th>Patient</th>
+                                        <th>Complain</th>
+                                        <th>Diagnosis</th>
+                                        <th>Prescription</th>
+                                        <th>Date</th>
+                                        <th>Time</th>
+                                        <!-- <th>Visit ID</th> -->
+                                    </thead>
+                                    <tbody>
+                                        {% for patient, comp,diag,pres,date,time,id in prev_visits%}
+                                            <tr>
+                                                <td>{{patient}}</td>
+                                                <td>{{comp}}</td>
+                                                <td>{{diag}}</td>
+                                                <td>{{pres}}</td>
+                                                <td>{{date}}</td>
+                                                <td>{{time}}</td>
+                                                <!-- <td>{{id}}</td> -->
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                {% endif %}
+                            </div>
+                            <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <!-- <button type="button" class="btn btn-primary">Understood</button> -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Modal -->
+                <div class="modal fade" id="exampleModalPres" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-scrollable, modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                            <h5 class="modal-title" id="staticBackdropLabel">See Previous Visits</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="change"></div>
+                            </div>
+                            <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" onclick="getPres()">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <datalist id="no_options">
+                {% for no in nos%}
+                    <option value="{{no}}">
+                {% endfor %}
+            </datalist>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

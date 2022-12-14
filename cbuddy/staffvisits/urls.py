@@ -15,13 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from .views import *
+
+app_name = 'staffvisits'
 
 urlpatterns = [
-    path('', include('authen.urls')),
-    path('dashboard/', include('dashboard.urls')),
-    path('medicalvisit/', include('medicalvisit.urls')),
-    path('studentinfo/', include('studentinfo.urls')),
-    path('drugmanagement/', include('drugmanagement.urls')),
-    path('staffvisits/', include('staffvisits.urls')),
-    path('admin/', admin.site.urls),
+    path('', visit, name='visit'),
+    path('transactions/', showStaffTransactions, name='transactions'),
+    path('submit-amt/<visit_id>', submitAmt, name='submit-amt'),
+    path('create-staff-visit/<staff_id>/<patient>/<complain>/<diag>/<meds>/<amt>', createStaffVisit, name='create-staff-visit'),
 ]

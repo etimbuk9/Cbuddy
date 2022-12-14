@@ -36,7 +36,6 @@ def visit(request):
                 print(form.errors)
     return redirect('authen:login')
 
-
 def checkStudentPrescription(request):
     end_overdue(7)
     form = StudentSearchForm()
@@ -72,7 +71,6 @@ def checkStudentPrescription(request):
             'nos':getStudNos(),
             'drugs': getDrugs(),
         })
-
 
 def newLabVisit(request):
     if request.method == 'GET':
@@ -156,7 +154,6 @@ def stop_meds(request, medname):
     medname1 = medname.replace('->', '/')
     global_vars.graph.evaluate('match (m:Medication{name: "'+str(medname1)+'"}) set m.ongoing= 0')
     return redirect('medicalvisit:check-pres')
-
 
 def setdrugchart(request, medname, choices):
     medname1 = medname.replace('->', '/')

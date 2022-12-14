@@ -58,6 +58,15 @@ def getPreviousVisits(studentno):
         d2 = [list(d1.iloc[x,:]) for x in range(d1.shape[0])]
     return d2
 
+def show_previous_staffvisits(staffno):
+    d2 = []
+    d = graph.run('MATCH(n:Staffvisit) where n.name starts with "' + staffno.upper() + '"' + 'RETURN n.Complain,n.Diagnosis,n.Prescription,n.date,n.time, n.name,n.patient order by n.date')
+    d1 = d.to_data_frame()
+    if d1.shape[0] != 0:
+        d2 = d1[['n.patient', 'n.Complain', 'n.Diagnosis', 'n.Prescription', 'n.date', 'n.time', 'n.name']]
+        d2 = [list(d2.iloc[x,:]) for x in range(d2.shape[0])]
+    return d2
+
 def getLabVisits(studentno):
     d2 = []
     query = 'MATCH(n:Person{id:' + studentno + '})-[*2]-(m:LabVisit) ' + 'RETURN m.Results,m.doctor,m.date,m.time, m.name'
