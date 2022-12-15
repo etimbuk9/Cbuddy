@@ -54,6 +54,11 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a href="{% url 'staffvisits:transactions' %}" class="nav-link align-middle px-0 text-white">
+                            <i class="fs-5 bi-file-medical"></i> <span class="ms-1 d-none d-sm-inline">Record Staff Bills</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="{% url 'medicalvisit:check-pres' %}" class="nav-link align-middle px-0 text-white">
                             <i class="fs-5 bi-file-medical"></i> <span class="ms-1 d-none d-sm-inline">Check Student Prescription</span>
                         </a>
@@ -105,6 +110,13 @@
                             <i class="fs-5 bi-file-medical"></i> <span class="ms-1 d-none d-sm-inline">Checkout Drugs</span>
                         </a>
                     </li>
+                    {% if power_user %}
+                    <li class="nav-item">
+                        <a href="{% url 'dashboard:select-db' %}" class="nav-link align-middle px-0 text-white">
+                            <i class="fs-5 bi-box-arrow-in-left"></i> <span class="ms-1 d-none d-sm-inline">Select Student Database</span>
+                        </a>
+                    </li>
+                    {% endif %}
                     <li class="nav-item">
                         <a href="{% url 'authen:logout' %}" class="nav-link align-middle px-0 text-white">
                             <i class="fs-5 bi-box-arrow-in-left"></i> <span class="ms-1 d-none d-sm-inline">Sign Out</span>

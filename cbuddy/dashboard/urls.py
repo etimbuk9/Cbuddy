@@ -21,4 +21,5 @@ app_name = 'dashboard'
 
 urlpatterns = [
     path('<name>/<role>', home, name='home'),
+    path('select-db', select_db, name='select-db'),
 ]
