@@ -18,3 +18,19 @@ class StudentQueryForm(Form):
 class NewAllergyForm(Form):
     student = CharField(widget=TextInput(attrs={'class':'form-control','list':'no_options'}))
     allergy = CharField(widget=TextInput(attrs={'class':'form-control'}), label='Allergy (separate allergies using a comma (","))')
+
+class BioDataForm(Form):
+    # student = CharField(label='Student', widget=TextInput(attrs={'class':'form-control','list':'no_options'}))
+    address = CharField(widget=TextInput(attrs={'class':'form-control'}))
+    NOB = CharField(label='Number of Siblings',widget=NumberInput(attrs={'class':'form-control'}))
+    NOS = CharField(label='Email',widget=EmailInput(attrs={'class':'form-control'}))
+    student_set = ChoiceField(
+            label='Class', 
+            widget=Select(attrs={'class':'form-control'}), 
+            choices=[(x,x) for x in ['JSS1', 'JSS2', 'JSS3', 'SS1', 'SS2', 'SS3', 'GRADUATES']]
+        )
+    F_Occupation = CharField(label="Father's Occupation",widget=TextInput(attrs={'class':'form-control'}))
+    M_Occupation = CharField(label="Mother's Occupation",widget=TextInput(attrs={'class':'form-control'}))
+    F_Phone = CharField(label="Father's Phone",widget=TextInput(attrs={'class':'form-control'}))
+    M_Phone = CharField(label="Mother's Phone",widget=TextInput(attrs={'class':'form-control'}))
+

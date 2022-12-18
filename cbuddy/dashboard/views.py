@@ -46,13 +46,13 @@ def getVisitsintheLastWeek(dd):
     from_date = current_date - td(days=dd)
     from_date = from_date.strftime('%Y-%m-%d')
     query = f'match(n:Visit) where n.date >= "{from_date}" return count(n)'
-    print(query)
+    # print(query)
     data = global_vars.graph.run(query).to_data_frame()
-    print(query, data)
+    # print(query, data)
     return data.iloc[0,0]
 
 def getActiveStudents():
     query = 'match(n:Person{status:false}) return count(n)'
     data = global_vars.graph.run(query).to_data_frame()
-    print(query, data)
+    # print(query, data)
     return data.iloc[0,0]

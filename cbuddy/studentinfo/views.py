@@ -92,7 +92,45 @@ def moveToDispense(request, regno):
     print(global_vars.users)
     return redirect('medicalvisit:check-pres')
 
+def regnewstudent(request):
+    student_data = []
+    if request.method == 'GET':
+        # print(request.GET)
+        form = StudentSearchForm(request.GET)
+        if form.is_valid():
+            data = form.cleaned_data
+            student_info = data['student']
+            student_no = data['student'].split(' -> ')[-1]
+            student_no = student_no.split('(')[0].strip()
+
+            student_data = search_studinfo(student_no)
+            student_data['student_set'] = search_set(student_no)[0]
+            print(student_data)
+        else:
+            print(form.errors)
+        bioform = BioDataForm(initial=student_data)
+        return render(request, 'studentinfo/newreg.html', context={
+            'appuser': global_vars.exportUserInfo(request)[0],
+            'role': global_vars.exportUserInfo(request)[1],
+            'bioform':bioform,
+        })
+    return redirect('authen:login')
+
+
+
 ## Utility Functions
+def search_studinfo(regno):
+    d = global_vars.graph.run('MATCH (a:Person{id:' + regno + '}) RETURN properties(a)')
+    d = d.to_data_frame()
+    da = d.iloc[0, 0]
+    return da
+
+def search_set(regno):
+    d = global_vars.graph.run('MATCH (a:Person{id:' + regno + '})-[*]->(m:Set) RETURN a.name,a.id,a.gender, m.name')
+    d1 = d.to_data_frame()
+    d = list(d1['m.name'])
+    return d
+
 def getStudentsOnMedication():
     d1 = []
     query = 'MATCH(a:Person)-[*]->(m:Medication) where m.ongoing=1 return distinct a.name, a.id, a.gender'

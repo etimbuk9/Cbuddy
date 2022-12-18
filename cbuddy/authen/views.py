@@ -78,20 +78,20 @@ def send_debtors():
     current_date = dt.now()
     maxday = calendar.monthrange(current_date.year, current_date.month)
     sending_date = dt(current_date.year, current_date.month, maxday[-1]-3)
-    print(sending_date)
+    # print(sending_date)
 
     fullpath = os.path.join(BASE_DIR, 'debts')
     folder = os.listdir(fullpath)
     folder = [str(x).lower() for x in folder]
     # print(folder)
     if current_date.date() == sending_date.date():
-        print('we r in')
+        # print('we r in')
         filename = 'Debt '+current_date.strftime('%B %Y')+'.xlsx'
         if filename.lower() not in folder:
             generate_debt_file(os.path.join(fullpath,filename))
             global_vars.graph.evaluate('Match(n:Staffvisit{Paid:0}) set n.Paid=1')
     else:
-        print('hello')
+        print('Not in')
 
 def generate_debt_file(filename):
     import pandas as p

@@ -35,6 +35,11 @@
                             <i class="fs-5 bi-house"></i><span class="ms-1 d-none d-sm-inline">Home</span>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link px-sm-0 px-2 text-white" data-bs-toggle="modal" data-bs-target="#exampleModaledit">
+                            <i class="fs-5 bi-pen"></i><span class="ms-1 d-none d-sm-inline">Register/Edit New Student</span>
+                        </a>
+                    </li>
                    <li><div class="divider"></div></li>
                     {% if role == 'DOCTOR' %}
                         <li class="nav-item">
@@ -205,6 +210,34 @@
                             <option value="{{stf}}">
                         {% endfor %}
                     </datalist>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="exampleModaledit" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Edit Student Information</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form method="get" action="{% url 'studentinfo:new-reg' %}">
+                        <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="exampleFormControlInput1" class="form-label">Select Student</label>
+                                    <input type="text" class="form-control" id="exampleFormControlInput1" placeholder="Type Staff Number or Name" list="no_options" name="student">
+                                </div>
+                        </div>
+                        <div class="modal-footer justify-content-center">
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </div>
+                    </form>
+                    <!-- <datalist id="no_options">
+                        {% for stf in staff_info %}
+                            <option value="{{stf}}">
+                        {% endfor %}
+                    </datalist> -->
                 </div>
             </div>
         </div>

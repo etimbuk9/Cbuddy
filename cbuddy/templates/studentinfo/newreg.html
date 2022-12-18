@@ -1,0 +1,15 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+
+{% block content %}
+    <div class="card">
+        <div class="card-header">Bio Data</div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                {{bioform.as_p}}
+            </form>
+        </div>
+    </div>
+{% endblock %}
