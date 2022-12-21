@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<!-- <body style="background-image: url('media/logo-symbol.png')"> -->
+<header>
+    <div><center><img src="{% static 'logo.png' %}" alt=""  style="width:40px;"></center></div>
+    <center>
+        <h1 style="font-size: xx-large; margin-bottom:0;">TOPFAITH INTERNATIONAL SECONDARY SCHOOL</h1>
+        <h2 style="font-size: medium; margin:0;">TOPFAITH ROAD, MKPATAK, AKWA IBOM STATE</h2>
+        <h2 style="font-size: medium; margin:0;">TEL: 08034546317, 07066211122. E-MAIL: info@topfaith.sch.ng</h2>
+        <h1 style="color:red;">MEDICAL REPORT</h1>
+        <h3></h3>
+    </center>
+    <br>
+</header>
+
+    <table>
+        <thead>
+            <th align="left">Name</th>
+            <th align="left">Student Number</th>
+            <!-- <th align="left">Faculty</th>
+            <th align="left">Department</th>
+            <th align="left">Programme</th> -->
+<!--            <th>Name</th>-->
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{name}}</td>
+                <td>{{regno}}</td>
+                <!-- <td style="width:30%;">{{student.programme.department.faculty_or_directorate}}</td>
+                <td>{{student.programme.department}}</td>
+                <td>{{student.programme}}</td> -->
+            </tr>
+        </tbody>
+    </table>
+    <br>
+    <h2 style="margin-top:5px;">Medical Report between {{fromdate}} and {{todate}}</h2>
+    
+<!-- <div style="padding-top: 1px; padding-bottom: 1px; background-image:url('{% static 'logo.png' %}');background-repeat: no-repeat;"> -->
+<!--   <img src="media/logo-symbol.png" alt=""  style="width:50px; opacity:0.5;">-->
+<!--   <img src="{% static 'src/img/logo-symbol.png' %}" alt=""  style="width:50px;">-->
+        {% if dets == 'Yes' %}
+        <table style="width:100%;border-collapse: collapse;margin:24px;background-color:rgba(255,255,255,0.1);">
+            <thead>
+                <th align="left" style="vertical-align: top;">Date of Visit</th>
+                <th align="left" style="width: 20%; vertical-align: top;">Diagnosis</th>
+                <th align="left" style="width: 65%; vertical-align: top;">Prescription</th>
+            </thead>
+            <tbody>
+                {% for a,b,c,d,date,e,f,diag, pres,doc,g,h,i,j,remarks in all_results %}
+                    <tr style="border-bottom: 3px solid;">
+                        <td style="vertical-align: top; font-size: large; padding-bottom: 12px;">{{date}}</td>
+                        <td style="vertical-align: top; font-size: large;">{{diag}}</td>
+                        <td style="vertical-align: top; font-size: large; padding-bottom: 12px;">{{pres}}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            Your ward visited the clinic {{vis_count}} time(s) in the course of the time period stated above and received appropriate treatment and follow up by the clinic physicians and nurses on duty. For further enquires and a more detailed report, a mail can be sent to us at clinic@topfaith.sch.ng.
+        {% endif %}
+    <br></div>
+
+</body>
+</html>

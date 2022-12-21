@@ -3,13 +3,87 @@
 {% load static %}
 
 {% block content %}
+
+<script>
+    $(document).ready(function(){
+        names = {{vacs|safe}};
+        vaccines = ["MEASLES", "RUBELLA", "TRIPLE ANTIGEN", "TYPHOID", "YELLOW FEVER", "BCG", "TETANUS TOXOID ALONE", "POLIO", "CHOLERA"];
+        vaccines_names = []
+        for(var a=0; a<vaccines.length; a++){
+            if (!names.includes(vaccines[a])){
+                vaccines_names.push(vaccines[a]);
+            }
+        }
+
+    var result = Object.keys(names);
+    var output = [];
+    var vacs_output = {};
+    for (var i=0; i<names.length; i++){
+        output.push({'tag':names[i]});
+    }
+
+    for (var i=0; i<vaccines_names.length; i++){
+        vacs_output[vaccines_names[i]] = null;
+    }
+
+    console.log(output);
+
+    $('.chips').chips();
+  $('.chips-initial').chips({
+    data: output,
+  });
+  $('.chips-placeholder').chips({
+    placeholder: 'Enter a tag',
+    secondaryPlaceholder: '+Tag',
+  });
+  $('.chips-autocomplete').chips({
+    autocompleteOptions: {
+      data: vacs_output,
+      limit: Infinity,
+      minLength: 1
+    }
+  });})
+</script>
+
+<div class="container">
+<form method="post" action="/">
+    {% csrf_token %}
     <div class="card">
         <div class="card-header">Bio Data</div>
         <div class="card-body">
-            <form method="post">
-                {% csrf_token %}
-                {{bioform.as_p}}
-            </form>
+            {{bioform.as_p}}
         </div>
     </div>
+    <div class="card">
+        <div class="card-header">Declaration</div>
+        <div class="card-body">
+            If my child should require urgent medical attention due to ill health or serious injury. I agree that he/she should receive treatment from the nearest medical Institution approved by school management.
+    
+            Furthermore, if the hospital should advise an immediate surgical operation, I authorize the principal to give his/her consent on my behalf.
+            
+            I accept full financial responsibility for all medical treatments, which the school deems necessary to involve outside medical attention in an emergency situation.
+            <br>
+            {{decform.as_p}}
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">Vaccines</div>
+        <div class="card-body">
+            <div class="btn-group-vertical" role="group" aria-label="Vertical checkbox button group">
+                {% for vac in full_vac %}
+                    {% if vac in vacs %}
+                    <input type="checkbox" class="btn-check" id="{{vac}}" autocomplete="off" name="{{vac}}" checked disabled>
+                    {% else %}
+                    <input type="checkbox" class="btn-check" id="{{vac}}" autocomplete="off" name="{{vac}}">
+                    {% endif %}
+                    <label class="btn btn-outline-primary" for="{{vac}}">{{vac}}</label>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <!-- <div class="row d-flex"> -->
+        <button type="submit" class="btn btn-primary" onsubmit="alert('Hello World!');">Submit</button>
+    <!-- </div> -->
+</form>
+</div>
 {% endblock %}

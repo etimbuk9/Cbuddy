@@ -1,8 +1,15 @@
+from io import BytesIO
+import os
+from django.contrib.staticfiles import finders
+from django.conf import settings
 from django.shortcuts import render, HttpResponse, redirect
 from medicalvisit.views import end_overdue
 import global_vars
 from medicalvisit.views import getStudNos
 from .forms import *
+from .CDBdefaultercalc import detector
+from django.template.loader import get_template
+from xhtml2pdf import pisa
 
 # Create your views here.
 def landingpage(request):
@@ -94,6 +101,7 @@ def moveToDispense(request, regno):
 
 def regnewstudent(request):
     student_data = []
+    vacs = []
     if request.method == 'GET':
         # print(request.GET)
         form = StudentSearchForm(request.GET)
@@ -105,20 +113,151 @@ def regnewstudent(request):
 
             student_data = search_studinfo(student_no)
             student_data['student_set'] = search_set(student_no)[0]
+            print(search_studinfo(student_no))
+            # student_data['choice'] = search_studinfo(student_no)['']
             print(student_data)
+            vacs = search_studVacinfo(student_no)
         else:
             print(form.errors)
         bioform = BioDataForm(initial=student_data)
+        dec_form = DeclarationForm(initial=student_data)
+        vaccines = ["MEASLES", "RUBELLA", "TRIPLE ANTIGEN", "TYPHOID", "YELLOW FEVER", "BCG", "TETANUS TOXOID ALONE", "POLIO", "CHOLERA"]
         return render(request, 'studentinfo/newreg.html', context={
             'appuser': global_vars.exportUserInfo(request)[0],
             'role': global_vars.exportUserInfo(request)[1],
             'bioform':bioform,
+            'decform':dec_form,
+            'vacs': vacs,
+            'full_vac':vaccines,
         })
     return redirect('authen:login')
+
+def generateReport(request):
+    set_dll_search_path()
+    if request.method == 'POST':
+        form = ReportForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            student_name = str(data['student']).split(' -> ')[0].strip()
+            regno = str(data['student']).split(' -> ')[1].split('(')[0].strip()
+            fromDate = data['start_date'].strftime('%Y-%m-%d')
+            todate = data['end_date'].strftime('%Y-%m-%d')
+            vis_data = searchquery_report(regno, fromDate,todate)
+            vis_data = filterReport(vis_data, todate)
+
+            new_data = [list(vis_data.iloc[x,:]) for x in range(vis_data.shape[0])]
+
+            template = get_template('studentinfo/report-template.html')
+            context_dict = {
+                'name':student_name,
+                'regno':regno,
+                'fromdate':fromDate,
+                'todate': todate,
+                'all_results': new_data,
+                'dets': data['details'],
+                'vis_count':len(new_data),
+            }
+
+            # return render(request, 'transcripts/template.html', context=context_dict)
+            html = template.render(context_dict)
+            result = BytesIO()
+
+            pdf = pisa.pisaDocument(BytesIO(html.encode("utf-8")), result, link_callback=link_callback)
+            print(result)
+            if not pdf.err:
+                print(result)
+                return HttpResponse(result.getvalue(), content_type='application/pdf')
+            else:
+                print(pdf.err)
+            return None
+
+    form = ReportForm()
+    return render(request, 'studentinfo/gen-report.html', context={
+            'appuser': global_vars.exportUserInfo(request)[0],
+            'role': global_vars.exportUserInfo(request)[1],
+            'form':form,
+    })
+
 
 
 
 ## Utility Functions
+def search_studVacinfo(regno):
+    d1 = []
+    d = global_vars.graph.run('MATCH (a:Person{id:' + regno + '})-[]->(m:Vaccine) RETURN m.name').to_data_frame()
+    if d.shape[0] != 0:
+        d1 = list(d['m.name'])
+    return d1
+
+
+
+def report_gen(request, data, dets):
+    # print(data, dets)
+    new_data = [list(data.iloc[x,:]) for x in range(data.shape[0])]
+
+    # print(new_data)
+    template = get_template('studentinfo/report-template.html')
+    context_dict = {
+        'all_results': new_data,
+        'dets': dets,
+        'vis_count':len(new_data),
+    }
+
+    # return render(request, 'transcripts/template.html', context=context_dict)
+    html = template.render(context_dict)
+    result = BytesIO()
+
+    pdf = pisa.pisaDocument(BytesIO(html.encode("utf-8")), result, link_callback=link_callback)
+    print(result)
+    if not pdf.err:
+        print(result)
+        return HttpResponse(result.getvalue(), content_type='application/pdf')
+    else:
+        print(pdf.err)
+    return None
+
+def filterReport(data, todate):
+    row = []
+    mdate = data["m.startdate"]
+    vdate = data["q.date"]
+    for m, v in zip(mdate, vdate):
+        if m == None or v == None or m == '' or v == '':
+            row.append(False)
+        else:
+            if dt.strptime(m, '%Y-%m-%d') == dt.strptime(v, '%Y-%m-%d'):
+                row.append(True)
+            else:
+                row.append(False)
+    # print(row)
+    d1 = data[row]
+    print(d1)
+    d1['Remarks'] = detector(d1, dt.strptime(todate, '%Y-%m-%d'))[0]
+    return d1
+
+
+def searchquery_report(regno, fromdate, todate):
+    global tdata, comb, A, B
+    # frm = "1970-01-01 00:00:00"
+    # tod = dt.strftime(dt.now(), '%Y-%m-%d %H:%M:%S')
+    # graph1 = G("http://" + Globalz.hostip + ":7474/db/data/", password="medical")
+    # setquery = 'match (n:Person)-[*]->(s:Set{name: "' + Queues[0].upper() + '"})'
+    # genderquery = 'match (n:Person) where n.gender contains "' + Queues[1].upper() + '"'
+    BGquery = 'match (n:Person) where n.id = ' + str(regno).upper()
+    frmquery = 'match (n:Person)-[]->(q:Visit) where q.date >="' + str(fromdate) + '"'
+    toquery = 'match (n:Person)-[]->(q:Visit) where q.date <="' + str(todate) + '"'
+
+    Qus = [BGquery, frmquery, toquery]
+    query = ''
+    count = 0
+    for a in range(len(Qus)):
+        query += ' ' + Qus[a]
+
+    query += ' match(m:Medication)-[]->(q:Visit)<-[]-(n:Person) return n.name, m.days, m.times, m.state, m.startdate, n.id, q.Complain, q.Diagnosis,q.Prescription, q.doctor, q.date, q.name, ID(q), ID(m) order by n.id'
+    
+    d = global_vars.graph.run(query)
+    d1 = d.to_data_frame()
+    return d1
+
 def search_studinfo(regno):
     d = global_vars.graph.run('MATCH (a:Person{id:' + regno + '}) RETURN properties(a)')
     d = d.to_data_frame()
@@ -242,3 +381,48 @@ def getAttributes(studentno):
     if data.shape[0] > 0:
         data_out = list(data['a.name'])
     return data_out
+
+def link_callback(uri, rel):
+    """
+    Convert HTML URIs to absolute system paths so xhtml2pdf can access those
+    resources
+    """
+    result = finders.find(uri)
+    if result:
+        if not isinstance(result, (list, tuple)):
+            result = [result]
+        result = list(os.path.realpath(path) for path in result)
+        path = result[0]
+    else:
+        sUrl = settings.STATIC_URL  # Typically /static/
+        sRoot = settings.STATIC_ROOT  # Typically /home/userX/project_static/
+        mUrl = settings.MEDIA_URL  # Typically /media/
+        mRoot = settings.MEDIA_ROOT  # Typically /home/userX/project_static/media/
+
+        if uri.startswith(mUrl):
+            path = os.path.join(mRoot, uri.replace(mUrl, ""))
+        elif uri.startswith(sUrl):
+            path = os.path.join(sRoot, uri.replace(sUrl, ""))
+            print(path)
+        else:
+            return uri
+
+    # make sure that file exists
+    if not os.path.isfile(path):
+        raise Exception(
+            'media URI must start with %s or %s' % (sUrl, mUrl)
+        )
+    return path
+
+def set_dll_search_path():
+   # Python 3.8 no longer searches for DLLs in PATH, so we have to add
+   # everything in PATH manually. Note that unlike PATH add_dll_directory
+   # has no defined order, so if there are two cairo DLLs in PATH we
+   # might get a random one.
+   if os.name != "nt" or not hasattr(os, "add_dll_directory"):
+       return
+   for p in os.environ.get("PATH", "").split(os.pathsep):
+       try:
+           os.add_dll_directory(p)
+       except OSError:
+           pass

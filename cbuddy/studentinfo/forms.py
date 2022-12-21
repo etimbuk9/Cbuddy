@@ -22,15 +22,31 @@ class NewAllergyForm(Form):
 class BioDataForm(Form):
     # student = CharField(label='Student', widget=TextInput(attrs={'class':'form-control','list':'no_options'}))
     address = CharField(widget=TextInput(attrs={'class':'form-control'}))
-    NOB = CharField(label='Number of Siblings',widget=NumberInput(attrs={'class':'form-control'}))
-    NOS = CharField(label='Email',widget=EmailInput(attrs={'class':'form-control'}))
+    NOB = CharField(label='Number of Siblings',widget=NumberInput(attrs={'class':'form-control'}), required=False)
+    NOS = CharField(label='Email',widget=EmailInput(attrs={'class':'form-control'}), required=False)
     student_set = ChoiceField(
             label='Class', 
             widget=Select(attrs={'class':'form-control'}), 
             choices=[(x,x) for x in ['JSS1', 'JSS2', 'JSS3', 'SS1', 'SS2', 'SS3', 'GRADUATES']]
         )
-    F_Occupation = CharField(label="Father's Occupation",widget=TextInput(attrs={'class':'form-control'}))
-    M_Occupation = CharField(label="Mother's Occupation",widget=TextInput(attrs={'class':'form-control'}))
-    F_Phone = CharField(label="Father's Phone",widget=TextInput(attrs={'class':'form-control'}))
-    M_Phone = CharField(label="Mother's Phone",widget=TextInput(attrs={'class':'form-control'}))
+    F_Occupation = CharField(label="Father's Occupation",widget=TextInput(attrs={'class':'form-control'}), required=False)
+    M_Occupation = CharField(label="Mother's Occupation",widget=TextInput(attrs={'class':'form-control'}), required=False)
+    F_Phone = CharField(label="Father's Phone",widget=TextInput(attrs={'class':'form-control'}), required=False)
+    M_Phone = CharField(label="Mother's Phone",widget=TextInput(attrs={'class':'form-control'}), required=False)
+    Blood_Group = ChoiceField(
+            widget=Select(attrs={'class':'form-control'}), 
+            choices=[(x,x) for x in ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']]
+        )
+    Genotype = ChoiceField(
+            widget=Select(attrs={'class':'form-control'}), 
+            choices=[(x,x) for x in ['AA', 'AS', 'SS', 'AC', 'SC', 'CC']]
+        )
 
+class DeclarationForm(Form):
+    Declaration = ChoiceField(choices=(('Yes', 'Yes'), ('No', 'No')), widget=Select(attrs={'class':'form-control'}))
+
+class ReportForm(Form):
+    student = CharField(label='Student', widget=TextInput(attrs={'class':'form-control','list':'no_options'}))
+    start_date = DateField(widget=DateInput(attrs={'class':'datepicker'}), required=False, initial="1970-01-01")
+    end_date = DateField(widget=DateInput(attrs={'class':'datepicker'}), required=False, initial=dt.now().strftime('%Y-%m-%d'))
+    details = ChoiceField(choices=(('Yes', 'Yes'), ('No', 'No')),widget=Select(attrs={'class': 'form-control'}))

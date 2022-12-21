@@ -1,0 +1,20 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+{% block content %}
+<script>
+    $(document).ready(function(){
+        $('.datepicker').datepicker({
+            format: 'yyyy-mm-dd',
+            // minDate: d,
+            yearRange: 100,
+        });
+    });
+</script>
+
+    <form method="post" target="_blank">
+        {% csrf_token %}
+        {{form.as_p}}
+        <button class="btn btn-primary">Submit</button>
+    </form>
+{% endblock %}

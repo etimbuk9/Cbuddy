@@ -54,6 +54,11 @@
                         </li>
                     {% endif %}
                     <li class="nav-item">
+                        <a href="{% url 'studentinfo:gen-report' %}" class="nav-link align-middle px-0 text-white">
+                            <i class="fs-5 bi-file-medical"></i> <span class="ms-1 d-none d-sm-inline">Generate Medical Report</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="#" class="nav-link align-middle px-0 text-white" data-bs-toggle="modal" data-bs-target="#exampleModalStaff">
                             <i class="fs-5 bi-file-medical"></i> <span class="ms-1 d-none d-sm-inline">New Staff Visit</span>
                         </a>

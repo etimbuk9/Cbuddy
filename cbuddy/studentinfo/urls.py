@@ -26,4 +26,5 @@ urlpatterns = [
     path('add-new-allergy/', addNewAllergy, name='add-new-allergy'),
     path('students-on-meds/', students_on_meds, name='students-on-meds'),
     path('move-to-dispense/<regno>', moveToDispense, name='move-to-dispense'),
+    path('gen-report', generateReport, name='gen-report'),
 ]
