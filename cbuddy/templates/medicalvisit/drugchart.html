@@ -37,10 +37,10 @@
 <p class="display-6">Medication</p>
 <br>
 
-{% for a,b,c,e,f,g,d in tab %}
+{% for a,b,c,e,unit,f,g,d in tab %}
 <div class="card">
     <div class="card-content">
-        <span class="card-title">{{a}}</span>
+        <span class="card-title">{{a}} ({{e}} {{unit}})</span>
         {% if g %}
         <!-- <div>with G</div> -->
             <table>

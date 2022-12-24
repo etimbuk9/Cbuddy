@@ -102,6 +102,7 @@ def moveToDispense(request, regno):
 def regnewstudent(request):
     student_data = []
     vacs = []
+    conds = []
     if request.method == 'GET':
         # print(request.GET)
         form = StudentSearchForm(request.GET)
@@ -117,11 +118,13 @@ def regnewstudent(request):
             # student_data['choice'] = search_studinfo(student_no)['']
             print(student_data)
             vacs = search_studVacinfo(student_no)
+            conds = search_studCondinfo(student_no)
         else:
             print(form.errors)
         bioform = BioDataForm(initial=student_data)
         dec_form = DeclarationForm(initial=student_data)
         vaccines = ["MEASLES", "RUBELLA", "TRIPLE ANTIGEN", "TYPHOID", "YELLOW FEVER", "BCG", "TETANUS TOXOID ALONE", "POLIO", "CHOLERA"]
+        conditions = ["PUD", "HBSS", "ASTHMA", "ALLERGIES", "DISABILITIES"]
         return render(request, 'studentinfo/newreg.html', context={
             'appuser': global_vars.exportUserInfo(request)[0],
             'role': global_vars.exportUserInfo(request)[1],
@@ -129,7 +132,27 @@ def regnewstudent(request):
             'decform':dec_form,
             'vacs': vacs,
             'full_vac':vaccines,
+            'conds': conds,
+            'conditions':conditions,
+
         })
+    return redirect('authen:login')
+
+def regFormSubmit(request):
+    if request.method == 'POST':
+        data = request.POST
+        vaccines = ["MEASLES", "RUBELLA", "TRIPLE ANTIGEN", "TYPHOID", "YELLOW FEVER", "BCG", "TETANUS TOXOID ALONE", "POLIO", "CHOLERA"]
+        conditions = ["PUD", "HBSS", "ASTHMA", "ALLERGIES", "DISABILITIES"]
+
+        data_keys = list(data.keys())
+
+        vacs =[x for x in data_keys if x in vaccines]
+        conds =[x for x in data_keys if x in conditions]
+
+
+        add_new_stud(data['id'], data['name'], data['address'], data['NOS'], data['NOB'], data['F_Occupation'], data['M_Occupation'], data['F_Phone'], data['M_Phone'], vacs, data['Declaration'], data['Blood_Group'], data['Genotype'], conds, data['student_set'])
+        print(data_keys, vacs, conds)
+
     return redirect('authen:login')
 
 def generateReport(request):
@@ -182,6 +205,33 @@ def generateReport(request):
 
 
 ## Utility Functions
+def add_new_stud(regno, name, addr, NOS, NOB, FO, MO, FPH, MPH, imm, dec, BG, Bgen, cond, clazz):  # , clazz):
+    graph1 = global_vars.graph
+    d = graph1.run('MATCH (n:Person{id:' + regno + '})-[r]-(d) RETURN d')
+    d1 = d.to_data_frame()
+    d1m = d1.shape
+    if d1m[0] > 0:
+        graph1.evaluate('MATCH (n:Person{id:' + regno + '})-[r]-(d) DELETE r')
+    graph1.evaluate(
+        'MATCH (n:Person{id:' + regno + '}) MATCH(d:Visit) WHERE d.name STARTS WITH "' + regno + '" MERGE (n)-[:VISITED]->(d)')
+    graph1.evaluate(
+        'MATCH (n:Person{id:' + regno + '}) MATCH(d:Medication) WHERE d.name CONTAINS "' + regno + '" MERGE (n)-[:CURRENTMEDS]->(d)')
+    graph1.evaluate(
+        'MATCH(n:Person{id:' + regno + '}) ' + 'MERGE(m:Set{name:"' + clazz.upper() + '"}) ' + 'MERGE (n)-[:MEMBEROF]->(m)')
+    graph1.evaluate(
+        'MERGE (n:Person{id:' + regno + '}) ' + 'SET n.name = "' + name.upper() + '"' + ' SET n.address = "' + addr.upper() + '"' + ' SET n.NOS = "' + NOS + '" SET n.NOB = ' + NOB + ' Set n.F_Occupation = "' + FO.upper() + '"' + ' SET n.M_Occupation = "' + MO.upper() + '"')
+    graph1.evaluate(
+        'MERGE (n:Person{id:' + regno + '}) ' + 'SET n.F_Phone = "' + FPH + '"' + ' SET n.M_Phone = "' + MPH + '"')
+    graph1.evaluate(
+        'MERGE (n:Person{id:' + regno + '}) ' + ' SET n.Blood_Group = "' + BG + '"' + ' SET n.Genotype = "' + Bgen + '"' + ' SET n.Declaration = "' + dec + '"')
+    # graph1.evaluate('MERGE (n:Person{id:' + regno + '}) ' + ' SET n.report = "' + report + '"')
+
+    for im in imm:
+        graph1.evaluate('MATCH(n:Person{id:' + regno + '}) ' + 'MERGE(m:Vaccine{name:"' + im.upper() + '"}) ' + 'MERGE (n)-[:IMMUNETO]->(m)')
+
+    for con in cond:
+        graph1.evaluate('MATCH(n:Person{id:' + regno + '}) ' + 'MERGE(m:Condition{name:"' + con.upper() + '"}) ' + 'MERGE (n)-[:SUFFERSFROM]->(m)')
+
 def search_studVacinfo(regno):
     d1 = []
     d = global_vars.graph.run('MATCH (a:Person{id:' + regno + '})-[]->(m:Vaccine) RETURN m.name').to_data_frame()
@@ -189,7 +239,12 @@ def search_studVacinfo(regno):
         d1 = list(d['m.name'])
     return d1
 
-
+def search_studCondinfo(regno):
+    d1 = []
+    d = global_vars.graph.run('MATCH (a:Person{id:' + regno + '})-[]->(m:Condition) RETURN m.name').to_data_frame()
+    if d.shape[0] != 0:
+        d1 = list(d['m.name'])
+    return d1
 
 def report_gen(request, data, dets):
     # print(data, dets)

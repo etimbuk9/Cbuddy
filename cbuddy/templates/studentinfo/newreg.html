@@ -46,7 +46,7 @@
 </script>
 
 <div class="container">
-<form method="post" action="/">
+<form method="post" action="{% url 'studentinfo:submit-reg' %}">
     {% csrf_token %}
     <div class="card">
         <div class="card-header">Bio Data</div>
@@ -72,7 +72,7 @@
             <div class="btn-group-vertical" role="group" aria-label="Vertical checkbox button group">
                 {% for vac in full_vac %}
                     {% if vac in vacs %}
-                    <input type="checkbox" class="btn-check" id="{{vac}}" autocomplete="off" name="{{vac}}" checked disabled>
+                    <input type="checkbox" class="btn-check" id="{{vac}}" autocomplete="off" name="{{vac}}" checked>
                     {% else %}
                     <input type="checkbox" class="btn-check" id="{{vac}}" autocomplete="off" name="{{vac}}">
                     {% endif %}
@@ -81,9 +81,24 @@
             </div>
         </div>
     </div>
-    <!-- <div class="row d-flex"> -->
-        <button type="submit" class="btn btn-primary" onsubmit="alert('Hello World!');">Submit</button>
-    <!-- </div> -->
+    <div class="card">
+        <div class="card-header">Unique Conditions</div>
+        <div class="card-body">
+            <div class="btn-group-vertical" role="group" aria-label="Vertical checkbox button group">
+                {% for cond in conditions %}
+                    {% if cond in conds %}
+                    <input type="checkbox" class="btn-check" id="{{cond}}" autocomplete="off" name="{{cond}}" checked>
+                    {% else %}
+                    <input type="checkbox" class="btn-check" id="{{cond}}" autocomplete="off" name="{{cond}}">
+                    {% endif %}
+                    <label class="btn btn-outline-primary" for="{{cond}}">{{cond}}</label>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="row d-flex">
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
 </form>
 </div>
 {% endblock %}

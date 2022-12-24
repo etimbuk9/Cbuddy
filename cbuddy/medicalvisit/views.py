@@ -4,7 +4,7 @@ import global_vars
 from datetime import datetime as dt
 from datetime import timedelta as td
 import numpy as np
-from .models import Student
+from .models import Student, OrderedSet
 from authen import extras
 import pandas as pd
 # Create your views here.
@@ -106,11 +106,17 @@ def submitLabResult(request, medname):
     return redirect('authen:login')
 
 def getPres(request, pname, comp, diag, drugs="", pres=""):
-    drugList = list(set([x for x in str(drugs).split("->")]))
+    drugs1 = str(drugs).split("->")
+    drugList = []
+    for item in drugs1:
+        if item not in drugList:
+            drugList.append(item)
+    print(drugList)
     pres = pres.split(',')
     pres1 = [pres[n:n + len(drugList)] for n in range(0, len(pres), len(drugList))]
 
     pres1 = [[int(x) for x in y] for y in pres1]
+    diag = str(diag).replace('Q->', '?')
     # d1 = dt.strptime(dt.today().strftime('%Y-%m-%d'), '%Y-%m-%d')
     # d2 = dt.today() + td(int(max(pres1[2])))
 
@@ -461,29 +467,31 @@ def getDrugs():
 def end_overdue(no_of_days):
     g1 = global_vars.graph.run("MATCH (n:Medication) where n.ongoing=1 return n.name, n.days, n.times, n.startdate")
     g1 = g1.to_data_frame()
-    dday = g1["n.days"]
-    stday = g1["n.startdate"]
-    mname = g1["n.name"]
-    # print(dday)
-    dlist = []
-    for dy in dday:
-        if type(dy) is list:
-            dlist.append(max(dy))
-        else:
-            dlist.append(dy)
-    dlist = np.array(dlist)+no_of_days
 
-    for name, date,day in zip(mname, stday,dlist):
-        datediff = dt.today() -  dt.strptime(date,"%Y-%m-%d")
-        if datediff.days >= day:
-            # print('diff dey')
-            qry = 'match (n:Medication{name:"'+name+'"}) set n.ongoing = 0'
-            print(qry)
-            try:
-                global_vars.graph.evaluate(qry)
-                print('done')
-            except:
-                pass
+    if g1.shape[0] != 0:
+        dday = g1["n.days"]
+        stday = g1["n.startdate"]
+        mname = g1["n.name"]
+        # print(dday)
+        dlist = []
+        for dy in dday:
+            if type(dy) is list:
+                dlist.append(max(dy))
+            else:
+                dlist.append(dy)
+        dlist = np.array(dlist)+no_of_days
+
+        for name, date,day in zip(mname, stday,dlist):
+            datediff = dt.today() -  dt.strptime(date,"%Y-%m-%d")
+            if datediff.days >= day:
+                # print('diff dey')
+                qry = 'match (n:Medication{name:"'+name+'"}) set n.ongoing = 0'
+                print(qry)
+                try:
+                    global_vars.graph.evaluate(qry)
+                    print('done')
+                except:
+                    pass
 
 def getMedInfo(medname):
     medName = str(medname)
@@ -534,11 +542,19 @@ def getMedInfo(medname):
         n = zip(tuple(eval(data.iloc[0, 0])), tuple(map(lambda x: int(x), data.iloc[0, 1])),
                 tuple(map(lambda x: int(x), data.iloc[0, 2])), tuple(map(lambda x: int(x), data.iloc[0, 3])),
                 tuple(data.iloc[0, 4]), tuple(data.iloc[0, 5]), hu2)
-        # print(n)
+        print(n)
         for a, b, c, e, f, g, d in n:
             # print(d)
-            newdata.append([a, list(range(b)), list(range(1, c + 1)), e, f, g, d])
+            newdata.append([a, list(range(b)), list(range(1, c + 1)), e, getMedUnit(a), f, g, d])
     except Exception as err:
         print(err)
     # print(newdata)
     return newdata
+
+def getMedUnit(drugname):
+    d1 = ''
+    query = 'Match (n:Drug{name:"'+drugname+'"}) return n.p_unit'
+    data = global_vars.graph.run(query).to_data_frame()
+    if data.shape[0] != 0:
+        d1 = data.iloc[0,0]
+    return d1

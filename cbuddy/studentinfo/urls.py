@@ -23,6 +23,7 @@ urlpatterns = [
     path('', landingpage, name='landingpage'),
     path('query/', queryPage, name='query'),
     path('new-reg/', regnewstudent, name='new-reg'),
+    path('submit-reg/', regFormSubmit, name='submit-reg'),
     path('add-new-allergy/', addNewAllergy, name='add-new-allergy'),
     path('students-on-meds/', students_on_meds, name='students-on-meds'),
     path('move-to-dispense/<regno>', moveToDispense, name='move-to-dispense'),

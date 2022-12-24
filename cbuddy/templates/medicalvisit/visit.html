@@ -68,7 +68,7 @@
         }
 
         str = str//.replace(/[^a-z0-9 -]/g, '') // remove invalid chars
-            // .replace(/\s+/g, '-') // collapse whitespace and replace by -
+            .replace(/[?=]/g, 'Q->') // replace question marks with query
             .replace(/-+/g, '-'); // collapse dashes
 
         return str;
@@ -167,6 +167,7 @@
         comp = string_to_slug(comp.toString());
         // diag = diag.toString().replaceAll('/', '-');
         diag = string_to_slug(diag.toString());
+        console.log(diag)
         names = string_to_slug(names.toString());
 
         var ss1 = []

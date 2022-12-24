@@ -8,12 +8,13 @@ from .extras import getUserList
 from datetime import datetime as dt
 import calendar
 import os
-from cbuddy.settings import BASE_DIR
+from cbuddy.settings import BASE_DIR, MEDIA_ROOT
 
 # Create your views here.
 
 def login(request):
     send_debtors()
+    internalDBsync()
     if global_vars.get_and_set_login(request):
         return redirect(reverse('dashboard:home', args=[global_vars.user, global_vars.role]))
 
@@ -112,3 +113,127 @@ def generate_debt_file(filename):
         fw.save()
     except Exception as err:
         print(err)
+
+def syncDBs(filepath):
+    import pyodbc
+    import pandas as p
+
+    conn_str = (r'DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=' + filepath + 'PWD=etimbuk12')
+    conn = pyodbc.connect(conn_str)
+    cursor = conn.cursor()
+    for table_info in cursor.tables(tableType='TABLE'):
+        if table_info.table_name == 'Students':
+            name = table_info.table_name
+            break
+
+    cursor.execute('SELECT * FROM ' + name)
+    data = []
+    # graph1 = G("http://localhost:11038/db/data/", password="timbuk2")
+
+    for row in cursor:
+        data.append(list(row))
+
+    df1 = p.DataFrame(data,
+                      columns=['Reg_No', 'Lastname', 'Firstname', 'Middlename', 'Gender', 'Class', 'Set', 'Not_Present',
+                               'Scholarship', 'Tag', 'Applicant'])
+    df1['Firstname'][df1['Firstname'].isna()] = " "
+    df1['Lastname'][df1['Lastname'].isna()] = " "
+    df1['Middlename'][df1['Middlename'].isna()] = " "
+    # print(df1[df1['Firstname'].isna()])
+    df1['Name'] = df1['Lastname'] + ', ' + df1['Firstname'] + ' ' + df1['Middlename']
+    # print(df1[['Name','Reg_No']])
+    df1 = df1[df1['Name'].notna()]
+    conn.close()
+    outs = str(filepath).split('\\')
+
+    print(df1)
+    output_path = '/'.join(outs[:-1])
+
+    df1.to_csv(output_path+'/bursary_data.csv')
+    # print(output_path)
+    # print('hello World')
+
+    df1 = df1[df1['Tag'] == 0]
+    #
+    dimd = df1.shape
+    if dimd[0] > 0:
+        df1 = df1.sort_values(by=['Name'], ascending=False)
+    nam = df1['Name']
+    oi = df1[['Reg_No', 'Set', 'Gender', 'Not_Present']]
+    new_list = list(df1['Reg_No'])
+
+    # print(oi)
+
+    graph1 = global_vars.graph
+    current_list = graph1.run('match (n:Person) return n.id')
+    current_list = current_list.to_data_frame()
+    current_list = list(current_list['n.id'])
+
+    import numpy as np
+    # print(current_list)
+    # print(sorted(new_list))
+
+    diff = np.setdiff1d(new_list, current_list)
+    diff1 = []
+    print(diff)
+
+    # df1 = df1[df1['Reg_No'].isin(diff)]
+    # print(df1)
+
+    res_data = graph1.run('match(n:Person)-[r:MEMBEROF]-(d:Set) return n.id, n.name, d.name, n.gender, n.status').to_data_frame()
+    res_data = res_data[['d.name', 'n.gender', 'n.id', 'n.name', 'n.status']]
+    # print(res_data)
+    burs_data = df1[['Set','Gender','Reg_No','Name','Not_Present']]
+    
+    # print(burs_data)
+    count = 0
+    for regno in res_data['n.id']:
+        # try:
+        #     print(list(burs_data[burs_data['Reg_No']==regno].iloc[0,:]))
+        #     print(list(res_data[res_data['n.id']==regno].iloc[0,:]))
+        # except:
+        #     count+=1
+        #     print(regno)
+        try:
+            if list(res_data[res_data['n.id']==regno].iloc[0,:])==list(burs_data[burs_data['Reg_No']==regno].iloc[0,:]):
+                pass
+            else:
+                # print(list(res_data[res_data['n.id']==regno].iloc[0,:]))
+                # print(list(burs_data[burs_data['Reg_No']==regno].iloc[0,:]))
+                diff1.append(regno)
+        except Exception as e:
+            print(e)
+    print(len(diff1))
+    diff2 = diff.tolist()+ diff1
+    print(diff2)
+    # if len(diff) != 0:
+    #     df1 = df1[df1['Reg_No'].isin()]
+    # else:
+    #     df2 = df1[df1['Reg_No'].isin(diff1)]
+    df1 = burs_data[df1['Reg_No'].isin(diff2)]
+
+    print(df1)
+    for regno, name, claz, gender, status in zip(df1['Reg_No'], df1['Name'], df1['Set'], df1['Gender'],
+                                                 df1['Not_Present']):
+        graph1.evaluate('MATCH (n:Person{id:' + str(regno) + '})-[r:MEMBEROF]-(d) DELETE r')
+        graph1.evaluate('Merge (n:Person{id:' + str(
+            regno) + '}) SET n.name = "' + name.upper() + '" SET n.gender= "' + gender.upper() + '" set n.status=' + str(
+            status) + ' merge(s:Set{name:"' + claz.upper() + '"}) merge (n)-[:MEMBEROF]->(s)')
+    # print(count)
+
+def internalDBsync():
+    db_path = os.path.join(MEDIA_ROOT, 'topfaith_database_dist_v1_be.accdb')
+    db_path += ';'
+
+    log_path = os.path.join(MEDIA_ROOT, 'sync_log.txt')
+    if os.path.exists(log_path):
+        with open(log_path, 'r+') as file:
+            f = file.readlines()
+            f = [str(x).strip() for x in f]
+            if dt.now().strftime('%Y-%m-%d') not in f:
+                syncDBs(db_path)
+                file.write(dt.now().strftime('%Y-%m-%d')+'\n')
+    else:
+        syncDBs(db_path)
+        with open(log_path, 'w') as file:
+            file.write(dt.now().strftime('%Y-%m-%d')+'\n')

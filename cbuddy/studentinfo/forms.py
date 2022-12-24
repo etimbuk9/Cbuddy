@@ -20,7 +20,8 @@ class NewAllergyForm(Form):
     allergy = CharField(widget=TextInput(attrs={'class':'form-control'}), label='Allergy (separate allergies using a comma (","))')
 
 class BioDataForm(Form):
-    # student = CharField(label='Student', widget=TextInput(attrs={'class':'form-control','list':'no_options'}))
+    id = CharField(label='Student Number', widget=TextInput(attrs={'class':'form-control', 'readonly':True}), )
+    name = CharField(label='Student Name', widget=TextInput(attrs={'class':'form-control', 'readonly':True}), )
     address = CharField(widget=TextInput(attrs={'class':'form-control'}))
     NOB = CharField(label='Number of Siblings',widget=NumberInput(attrs={'class':'form-control'}), required=False)
     NOS = CharField(label='Email',widget=EmailInput(attrs={'class':'form-control'}), required=False)
@@ -47,6 +48,6 @@ class DeclarationForm(Form):
 
 class ReportForm(Form):
     student = CharField(label='Student', widget=TextInput(attrs={'class':'form-control','list':'no_options'}))
-    start_date = DateField(widget=DateInput(attrs={'class':'datepicker'}), required=False, initial="1970-01-01")
+    start_date = DateField(widget=DateInput(attrs={'class':'datepicker'}), required=False, initial="2018-11-05")
     end_date = DateField(widget=DateInput(attrs={'class':'datepicker'}), required=False, initial=dt.now().strftime('%Y-%m-%d'))
     details = ChoiceField(choices=(('Yes', 'Yes'), ('No', 'No')),widget=Select(attrs={'class': 'form-control'}))
