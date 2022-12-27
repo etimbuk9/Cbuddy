@@ -14,7 +14,11 @@ from cbuddy.settings import BASE_DIR, MEDIA_ROOT
 
 def login(request):
     send_debtors()
-    internalDBsync()
+    try:
+        internalDBsync()
+    except:
+        pass
+    
     if global_vars.get_and_set_login(request):
         return redirect(reverse('dashboard:home', args=[global_vars.user, global_vars.role]))
 

@@ -307,7 +307,7 @@ def searchquery_report(regno, fromdate, todate):
     for a in range(len(Qus)):
         query += ' ' + Qus[a]
 
-    query += ' match(m:Medication)-[]->(q:Visit)<-[]-(n:Person) return n.name, m.days, m.times, m.state, m.startdate, n.id, q.Complain, q.Diagnosis,q.Prescription, q.doctor, q.date, q.name, ID(q), ID(m) order by n.id'
+    query += ' match(m:Medication)-[]->(q:Visit)<-[]-(n:Person) return n.name, m.days, m.times, m.state, m.startdate, n.id, q.Complain, q.Diagnosis,q.Prescription, q.doctor, q.date, q.name, ID(q), ID(m) order by q.date desc'
     
     d = global_vars.graph.run(query)
     d1 = d.to_data_frame()
