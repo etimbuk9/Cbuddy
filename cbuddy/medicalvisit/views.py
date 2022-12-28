@@ -132,6 +132,13 @@ def getPresnp(request, pname, comp, diag):
 
     return redirect('authen:login')
 
+def setMedAmount(request, medname, amt):
+    medname1 = medname.replace('->', '/')
+
+    query = 'match(n:Medication{name: "'+str(medname1)+'"}) set n.amount = '+str(amt)
+    global_vars.graph.evaluate(query)
+    return redirect(reverse('medicalvisit:drug-chart', args=[medname]))
+
 def drugchart(request, medname):
     medname1 = medname.replace('->', '/')
     # print(getPrescriptionfromMedname(medname1))
@@ -439,11 +446,12 @@ def add_lab_visit(visname, results, date1, time, user):
 
 def getMedCycles(regno):
     d2 = []
-    query = 'MATCH(n:Person{id:' + regno + '})-[:CURRENTMEDS]->(m) ' + ' where m.ongoing = 1 RETURN m.ongoing,m.state,m.times,m.days,m.prescription, m.name'
+    query = 'MATCH(n:Person{id:' + regno + '})-[:CURRENTMEDS]->(m) ' + ' where m.ongoing = 1 RETURN m.ongoing,m.state,m.times,m.days,m.prescription, m.name, m.amount'
     d1 = global_vars.graph.run(query).to_data_frame()
-    print(d1.shape)
+    d1.fillna('', inplace=True)
+    print(d1)
     if d1.shape[0] != 0:
-        d2 = [(x,y, str(x).replace('/', '->')) for x,y in zip(d1['m.name'], d1['m.prescription'])]
+        d2 = [(x,y, str(x).replace('/', '->'), z) for x,y,z in zip(d1['m.name'], d1['m.prescription'], d1['m.amount'])]
     return d2
 
 

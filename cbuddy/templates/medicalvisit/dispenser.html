@@ -2,6 +2,23 @@
 {% load static %}
 
 {% block content %}
+<script>
+    function submitAmt(cycle_name){
+        var qry = '[id='+cycle_name.toString()+']'
+        console.log(qry);
+        var elem = document.getElementById(cycle_name);
+        var amt = elem.value
+
+        if (amt){
+            location = 'set-med-amount/'+cycle_name.toString()+'/'+amt.toString();
+        } else {
+            alert('Please enter an amount for this visit!')
+        }
+
+        
+    }
+</script>
+
     <div class="container">
         <div class="card">
             <p class="card-header">Check Prescription</p>
@@ -22,16 +39,29 @@
                         <thead>
                             <th>Medication Cycle</th>
                             <th>Prescription</th>
+                            <th>Amount</th>
                             <th>Actions</th>
                         </thead>
                         <tbody>
-                            {% for cycle, Pres, cycle_ in cycles %}
+                            {% for cycle, Pres, cycle_,isAmt in cycles %}
                                 <tr>
                                     <td>{{cycle}}</td>
                                     <td>{{Pres}}</td>
+                                    {% if isAmt %}
+                                    <td>
+                                        <input type="number" name="amount" id="{{cycle_}}" value="{{isAmt}}" readonly>
+                                    </td>
                                     <td>
                                         <a href="{% url 'medicalvisit:drug-chart' cycle_ %}" class="btn btn-success">Dispense</a>
                                     </td>
+                                    {% else %}
+                                    <td>
+                                        <input type="number" name="amount" id="{{cycle_}}">
+                                    </td>
+                                    <td>
+                                        <a class="btn btn-success" onclick="submitAmt(`{{cycle_}}`)">Submit</a>
+                                    </td>
+                                    {% endif %}
                                 </tr>
                             {% endfor %}
                         </tbody>
