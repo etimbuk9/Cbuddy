@@ -35,9 +35,11 @@
 <script>
     names = {{drugs|safe}};
     qty = {{qtys|safe}};
+    unit = {{units|safe}};
     var result = Object.keys(names);
     var output = {};
     var output2 = {};
+    var outUnits = {};
     var final_drugs = [];
     for (var i=0; i<names.length; i++){
         var dName = names[i];
@@ -45,8 +47,10 @@
         dName = dName.trim();
         output[dName] = qty[i];
         output2[names[i]] = qty[i];
+        outUnits[dName] = unit[i];
     }
     var old_stock = []
+    var unit_stock = []
     console.log(output);
     console.log(output2);
 
@@ -55,6 +59,7 @@
         var instance = M.Chips.getInstance(elems[0]).chipsData;
         var drugList = [];
         var qtyList = [];
+        var unitList = [];
         console.log(output);
         for (var i=0; i<instance.length; i++){
             drugList.push(instance[i]['tag']);
@@ -62,11 +67,14 @@
                 if(Object.keys(output)[j] == instance[i]['tag']){
                     qtyList.push(Object.values(output)[j])
                     final_drugs.push(Object.keys(output2)[j])
+                    unitList.push(Object.values(outUnits)[j])
                 }
             }
         }
         console.log(final_drugs);
+        console.log(unitList);
         old_stock = qtyList;
+        unit_stock = unitList;
         return drugList;
     }
 
@@ -77,9 +85,9 @@
         var ht = "";
         if (array.length != 0){
             // ht = ht = ('<div class="row"><div class="col s4 m4 l4">'+'Drug'+'</div> <div class= "col s2 m2 l2"><p>Amount</p></div>')
-            ht = ('<table class="table table-striped"><th>'+'Drug'+'</th><th>Current Stock</th> <th>Amount</th>')
+            ht = ('<table class="table table-striped"><th>'+'Drug'+'</th><th>Current Stock</th> <th>Amount</th> <th>Unit</th> <th>Unit Price</th>')
             for (var j = 0; j<array.length; j++){
-                ht = ht + ('<tr><td>'+array[j]+'</td><td>'+old_stock[j].toString()+'</td> <td><input type="number"id="id_amt"></td></tr>');
+                ht = ht + ('<tr><td>'+array[j]+'</td><td>'+old_stock[j].toString()+'</td> <td><input type="number"id="id_amt"></td> <td>'+unit_stock[j].toString()+'</td><td><input type="number" id="id_unit_price" step="0.01" min="0"></td></tr>');
             }
             ht = ht + ('</table> <div class="row"><button class="btn btn-primary" onclick="submitRestock()">Submit</button></div>');
         }else {
@@ -131,17 +139,24 @@
 
     function submitRestock(){
         var elem1 = document.querySelectorAll('[id=id_amt]');
+        var elem2 = document.querySelectorAll('[id=id_unit_price]');
         var stock = [];
+        var price = [];
         for (var i=0; i<elem1.length; i++){
             stock.push(elem1[i].value);
+            price.push(elem2[i].value);
         }
         // console.log(medformValidate(stock));
         if (medformValidate(stock)){
+            if(medformValidate(price)){
             var drugs = getChips();
             console.log(drugs, stock);
-            new_loc = `restock-drug/${final_drugs.join('->')}/${stock.toString()}`
+            new_loc = `restock-drug/${final_drugs.join('->')}/${stock.toString()}/${price.toString()}`
             location = new_loc;
             console.log(new_loc)
+        } else{
+                alert('Please ensure that all fields are filled!');   
+            }
         } else{
             alert('Please ensure that all fields are filled!');
         }

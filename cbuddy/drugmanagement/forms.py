@@ -28,3 +28,7 @@ class NewDrugForm(Form):
         widget=NumberInput(attrs={'class':'form-control'}), 
         initial=1.0,
     )
+    unit_price = FloatField(
+        widget=NumberInput(attrs={'class':'form-control', 'step':'0.01', 'min':'0'}), 
+        initial=1.0,
+    )

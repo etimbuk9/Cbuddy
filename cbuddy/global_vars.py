@@ -93,3 +93,11 @@ def getDrugQtys():
         studs = list(data['info'])
         return studs
     return []
+
+def getDrugUnits():
+    if graph:
+        query = "match(n:Drug) return n.p_unit as info"
+        data = graph.run(query).to_data_frame()
+        studs = list(data['info'])
+        return studs
+    return []

@@ -23,7 +23,7 @@ urlpatterns = [
     path('add-new-drug', addNewDrug, name='add-new-drug'),
     path('restock-drug', restockDrugs, name='restock-drug'),
     path('checkout-drug', checkoutDrugs, name='checkout-drug'),
-    path('restock-drug/<drugs>/<amts>', restockDrugs_submit, name='restock-drug-sbumit'),
+    path('restock-drug/<drugs>/<amts>/<price>', restockDrugs_submit, name='restock-drug-sbumit'),
     path('checkout-drug/<drugs>/<amts>', checkoutDrugs_submit, name='restock-drug-sbumit'),
     # path('check-pres', checkStudentPrescription, name='check-pres'),
 ]

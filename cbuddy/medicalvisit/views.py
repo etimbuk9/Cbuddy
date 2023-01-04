@@ -407,13 +407,23 @@ def get_drug_unit(item):
     unit = unit['n.p_unit'][0]
     return unit
 
+def get_drug_price(item):
+    output = 0
+    unit = global_vars.graph.run('match (n:Drug{name:"'+item+'"}) return n.unit_price')
+    unit = unit.to_data_frame()
+    if unit.shape[0] != 0:
+        output = unit['n.unit_price'][0]
+    return output
+
 def make_med_query(regno, amts, t, n, meds, request):
     st = []
     d1 = dt.strptime(dt.today().strftime('%Y-%m-%d'), '%Y-%m-%d')
     d2 = dt.today() + td(int(max(n)))
     presp = ''
+    total_cost = 0
     for a in range(len(meds)):
         presp += meds[a] + ', ' + str(amts[a]) + ' ' + str(get_drug_unit(meds[a])) + ', ' + str(t[a]) + ' time(s) per day, for ' + str(n[a]) + ' day(s)\n'
+        total_cost += (amts[a]*t[a]*n[a]*get_drug_price(meds[a]))
         states = np.full((int(t[a]), int(n[a])), False)
         dims = states.shape
         g = np.resize(states, [dims[0] * dims[1]])
@@ -425,7 +435,7 @@ def make_med_query(regno, amts, t, n, meds, request):
         '%Y-%m-%d') + '-' + d2.strftime(
         '%Y-%m-%d %H:%M:%S') + '"}) set m.ongoing = 1 set m.finished=0 set m.prescription="' + presp + '" set m.state=' + str(
         st) +' set m.nurses= '+str(st)+' set m.unit='+str(amts)+' set m.times = ' + str(t) + ' set m.days = ' + str(n) + ' set m.startdate = "' + d1.strftime(
-        '%Y-%m-%d') + '" set m.meds = "'+str(meds)+'" set m.doctor= "'+str(global_vars.exportUserInfo(request)[0])+'" '
+        '%Y-%m-%d') + '" set m.meds = "'+str(meds)+'" set m.doctor= "'+str(global_vars.exportUserInfo(request)[0])+'" set m.amount='+str(total_cost)
     #print(qry)
     #grav.evaluate(qry)
     return presp, qry

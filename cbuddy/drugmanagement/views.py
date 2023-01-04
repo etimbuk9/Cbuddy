@@ -31,6 +31,7 @@ def restockDrugs(request):
             'role': global_vars.exportUserInfo(request)[1],
             'drugs': global_vars.getDrugs(),
             'qtys':global_vars.getDrugQtys(),
+            'units':global_vars.getDrugUnits(),
             # 'form':form,
         })
 
@@ -46,12 +47,14 @@ def checkoutDrugs(request):
             # 'form':form,
         })
 
-def restockDrugs_submit(request, drugs, amts):
+def restockDrugs_submit(request, drugs, amts, price):
     import numpy as np
     from datetime import datetime as dt
+
     drugList = list(set([x for x in str(drugs).split("->")]))
     print(drugList)
     amtList = [float(x.strip()) for x in str(amts).split(",")]
+    priceList = [float(x.strip()) for x in str(price).split(",")]
 
     old_stock = []
     for item in drugList:
@@ -60,9 +63,9 @@ def restockDrugs_submit(request, drugs, amts):
     print(old_stock)
     new_stock = np.array(old_stock) + np.array(amtList)
 
-    for item, amt, nAmt in zip(drugList, amtList,new_stock):
+    for item, amt, nAmt, prc in zip(drugList, amtList, new_stock, priceList):
         global_vars.graph.evaluate('Match(n:User{name:"'+str(global_vars.exportUserInfo(request)[0])+'"}) Match(d:Drug{name:"'+item+'"}) Create(n)-[r:STOCKEDBY {date:"'+str(dt.now())+'"}]->(d) SET r.AMOUNT = '+str(amt))
-        global_vars.graph.evaluate('MERGE (n:Drug{name:"'+ item+ '"})'+' SET n.quantity = toInteger('+str(nAmt)+') ')
+        global_vars.graph.evaluate('MERGE (n:Drug{name:"'+ item+ '"})'+' SET n.quantity = toInteger('+str(nAmt)+') SET n.unit_price = toFloat('+str(prc)+')')
 
     return redirect('drugmanagement:restock-drug')
 
