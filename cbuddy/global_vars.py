@@ -2,8 +2,8 @@ from py2neo import Graph
 from authen import extras, auth_functions
 from medicalvisit.views import getStudNos
 
-host_ip = '192.168.0.69'
-# host_ip = 'localhost'
+# host_ip = '192.168.0.69'
+host_ip = 'localhost'
 # host_ip = '192.168.1.101'
 # host_ip = '192.168.8.175'
 

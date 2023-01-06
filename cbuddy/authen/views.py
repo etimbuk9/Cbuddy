@@ -85,15 +85,15 @@ def send_debtors():
     sending_date = dt(current_date.year, current_date.month, maxday[-1]-3)
     # print(sending_date)
 
-    fullpath = os.path.join(BASE_DIR, 'debts')
-    folder = os.listdir(fullpath)
+    fullstaffpath = os.path.join(BASE_DIR, 'debts', 'staff')
+    folder = os.listdir(fullstaffpath)
     folder = [str(x).lower() for x in folder]
     # print(folder)
     if current_date.date() == sending_date.date():
         # print('we r in')
-        filename = 'Debt '+current_date.strftime('%B %Y')+'.xlsx'
+        filename = 'Staff Debt '+current_date.strftime('%B %Y')+'.xlsx'
         if filename.lower() not in folder:
-            generate_debt_file(os.path.join(fullpath,filename))
+            generate_debt_file(os.path.join(fullstaffpath,filename))
             global_vars.graph.evaluate('Match(n:Staffvisit{Paid:0}) set n.Paid=1')
     else:
         print('Not in')
@@ -114,6 +114,26 @@ def generate_debt_file(filename):
         else:
             fw = p.ExcelWriter(filename + ".xlsx")
         data2.to_excel(fw)
+        fw.save()
+    except Exception as err:
+        print(err)
+
+def generate_debt_file_student(filename):
+    import pandas as p
+    data = global_vars.graph.run(
+        'match (n:Medication)--(p:Person) where not exists(n.Paid) and exists(n.amount) return p.name, p.id, sum(n.amount) as amount')
+    data = data.to_data_frame()
+    data = data[['p.name', 'p.id', 'n.amount', 'n.Paid']]
+    data1 = data[['p.name', 'p.id', 'amount']]
+    # data2 = data1.groupby(['n.staffname', 'p.id'], as_index=False).sum()
+    # print(data2)
+    try:
+        # filename = filename
+        if '.xlsx' in filename:
+            fw = p.ExcelWriter(filename)
+        else:
+            fw = p.ExcelWriter(filename + ".xlsx")
+        data1.to_excel(fw)
         fw.save()
     except Exception as err:
         print(err)
